@@ -5,48 +5,36 @@ $(function() {
 		this.height = 8;
 		this.width = 8;
 		this.numberOfUnits = 0;
-		
-		// this.directions = {
-		//     "n": new Location(0, -1),
-		//     "ne": new Location(1, -1),
-		//     "e": new Location(1, 0),
-		//     "se": new Location(1, 1),
-		//     "s": new Location(0, 1),
-		//     "sw": new Location(-1, 1),
-		//     "w": new Location(-1, 0),
-		//     "nw": new Location(-1, -1)
-		// };
 	}
 
 	Map.prototype.isInside = function(num) {
 		return num >= 0 && num < this.height;
 	};
 
-	Map.prototype.addUnit = function(unit, index) {
-		if (map[index].getUnit() != null) {
+	Map.prototype.addUnit = function(unit, index) {	
+		console.log(this.map.length);
+		
+		if (this.map[index].getUnit() != null) {
 			throw new LocationAllreadyHaveUnitException();
 		}
-		map[index].setUnit(unit);
+		
+		this.map[index].setUnit(unit);
 		unit.setMap(this);
-		numberOfUnits += 1;
+		this.numberOfUnits += 1;
 	};
 
 	Map.prototype.draw = function() {
-	   var html = '';
+	   var html = '';	   
 	   
-	   console.log(typeof this.acted);
-	   
-	   for (var k = 0; k < 64; k++) {
+	    for (var k = 0; k < 64; k++) {
 	   		this.map.push(new Location(i));
-	   }
-	   
-	   console.log(map.length);
+	    }	   	  
 
-	    for (var i = 0; i < map.length; i++) {   	
-	    	html += '<div id="' + i + '" class="cell">' + map[i].toString() + '</div>';
-	    }
+	    for (var i = 0; i < this.map.length; i++) {  	
+	    	html += '<div id="' + i + '" class="cell">' + this.map[i].toString() + '</div>';
+	    }	    
 
-	    $('#map').html(html);
+	    $("#map").html(html);
 	};
 
 	// Map.prototype.checkEnemies = function(index, attackDistance) {
@@ -213,22 +201,52 @@ $(function() {
 	};
 
 	Location.prototype.toString = function() {
-		if (this.unit = null) {
-			return "";
+		if (this.unit == null) {
+			return " ";
 		}
-		return unit.getIcon();
+		return this.unit.getIcon();
 	};
 	
-	// html += '<script src="unit.js"></script>';
-	// html += '<script src="abilities.js"></script>';
-	// html += '<script src="attackmethod.js"></script>';
-	// html += '<script src="state.js"></script>';
-	// html += '<script src="spellbook.js"></script>';
-	// html += '<script src="spell.js"></script>';
-	// html += '<script src="attackmethod.js"></script>';
-	// html += '<script src="map.js"></script>';
+	function AttackMethod (dmg) {
+		this.dmg = dmg;
+	};
+
+	AttackMethod.prototype.attack = function(enemy) {};
+	AttackMethod.prototype.counterAttack = function(enemy) {};
+
+	function DefaultAttack(dmg) {
+		AttackMethod.apply(this, arguments);
+	};
+
+	DefaultAttack.prototype.attack = function(enemy) {
+		enemy.takeDamage(dmg);
+	};
 	
-	// $("head").html(html);
+	DefaultAttack.prototype.counterAttack = function(enemy) {
+		enemy.takeDamage(dmg / 2);
+	};
+
+	function VampireAttack(self) {
+		AttackMethod.apply(this, self.getDamage());
+	};
+
+	VampireAttack.prototype.attack = function(enemy) {
+		if (enemy.getInfectPossibility()) {
+			enemy.setAbility(new Vampirism(enemy));
+			enemy.setAttackMethod(new VampireAttack(enemy));
+			enemy.setName("Vampire " + enemy.getName());
+			enemy.changeInfectPossibility();
+			enemy.changeIsUndead();
+		}
+		
+		enemy.takeDamage(this.dmg);
+		this.self.useAbility();
+	};
+	
+	VampireAttack.prototype.counterAttack = function(enemy) {
+		this.self.useAbility();
+		enemy.takeDamage(this.dmg / 2);
+	};
 	
 	function Unit(name, hp, dmg) {
 	    this.state = new State(name, hp, dmg);
@@ -418,12 +436,12 @@ $(function() {
 
 	function Soldier(name, hp, dmg) {
 	    Unit.apply(this, arguments);
-	    this.attackMethod = new DeffaultAttack(dmg);
+	    this.attackMethod = new DefaultAttack(dmg);
 	};
 
 	function Berserker(name, hp, dmg) {
 	    Unit.apply(this, arguments);
-	    this.attackMethod = new DeffaultAttack(dmg);
+	    this.attackMethod = new DefaultAttack(dmg);
 	};
 
 	Berserker.prototype.takeMagicDamage = function (dmg) {
@@ -436,7 +454,7 @@ $(function() {
 
 	function Rogue(name, hp, dmg) {
 	    Unit.apply(this, arguments);
-	    this.attackMethod = new DeffaultAttack(dmg);
+	    this.attackMethod = new DefaultAttack(dmg);
 	};
 
 	Rogue.prototype.attack = function (enemy) {
@@ -492,47 +510,6 @@ $(function() {
 		this.target.changeIsWolf();
 		this.target.takeDamage(hpDifference);
 	};
-
-	function AttackMethod (dmg) {
-		this.dmg = dmg;
-	};
-
-	AttackMethod.prototype.attack = function(enemy) {};
-	AttackMethod.prototype.counterAttack = function(enemy) {};
-
-	function DefaultAttack(dmg) {
-		AttackMethod.apply(this, dmg);
-	};
-
-	DefaultAttack.prototype.attack = function(enemy) {
-		enemy.takeDamage(dmg);
-	};
-	DefaultAttack.prototype.counterAttack = function(enemy) {
-		enemy.takeDamage(dmg / 2);
-	};
-
-	function VampireAttack(self) {
-		AttackMethod.apply(this, self.getDamage());
-	};
-
-	VampireAttack.prototype.attack = function(enemy) {
-		if (enemy.getInfectPossibility()) {
-			enemy.setAbility(new Vampirism(enemy));
-			enemy.setAttackMethod(new VampireAttack(enemy));
-			enemy.setName("Vampire " + enemy.getName());
-			enemy.changeInfectPossibility();
-			enemy.changeIsUndead();
-		}
-		
-		enemy.takeDamage(this.dmg);
-		this.self.useAbility();
-	};
-	
-	VampireAttack.prototype.counterAttack = function(enemy) {
-		this.self.useAbility();
-		enemy.takeDamage(this.dmg / 2);
-	};
-
 
 	function Spellbook () {
 		this.spellbook = {};
@@ -665,5 +642,9 @@ $(function() {
 	};
 	
 	var map = new Map();
+	var s = new Soldier("Soldier", 200, 20);
+	
+	map.addUnit(s, 5);	
 	map.draw();
+
 });
