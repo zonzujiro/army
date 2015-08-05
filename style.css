@@ -1,0 +1,33 @@
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+#map {
+    width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cell {
+    width: 60px;
+    height: 60px;
+    border: 1px solid black;
+    margin: 7px;
+    float: left;
+    cursor: pointer;
+    font-size: 45px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.cell:hover {
+    border: 1px solid orange;
+}
+
+#main {
+    width: 710px;
+    margin-left: auto;
+    margin-right: auto;
+}
