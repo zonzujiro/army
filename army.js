@@ -6,6 +6,10 @@ $(function() {
 		this.width = 8;
 		this.numberOfUnits = 0;
 		
+		for (var i = 0; i < 64; i++) {
+	   		this.map.push(new Location(i));
+	    }
+		
 		this.draw();
 	}
 
@@ -15,7 +19,7 @@ $(function() {
 
 	Map.prototype.addUnit = function(unit, index) {	
 		if (this.map[index].getUnit() != null) {
-			throw new LocationAllreadyHaveUnitException();
+			throw new LocationAllreadyHaveUnitError("LocationAllreadyHaveUnitException");
 		}
 		
 		this.map[index].setUnit(unit);		
@@ -24,13 +28,9 @@ $(function() {
 	};
 
 	Map.prototype.draw = function() {
-	   var html = '';	   
-	   
-	    for (var k = 0; k < 64; k++) {
-	   		this.map.push(new Location(i));
-	    }	   	  
-
-	    for (var i = 0; i < this.map.length; i++) {  	
+		var html = '';
+		
+		for (var i = 0; i < this.map.length; i++) {  	
 	    	html += '<div id="' + i + '" class="cell">' + this.map[i].toString() + '</div>';
 	    }	    
 	    
@@ -362,6 +362,8 @@ $(function() {
 	};
 	
 	Unit.prototype.setMap = function(map) {
+		console.log(map);
+		
 		this.map = map;
 	};
 
@@ -437,16 +439,22 @@ $(function() {
 	Unit.prototype.toString = function() {
 	    return this.getName() + " [HP: " + this.getCurrentHp() + "/" + this.getMaxHp() + " Damage: " + this.getDamage() + "]";
 	};
-
+	
 	function Soldier(name, hp, dmg) {
 	    Unit.apply(this, arguments);
 	    this.attackMethod = new DefaultAttack(dmg);
+	    this.icon = "S";
 	};
+	
+	Soldier.prototype = Object.create(Unit.prototype);
 
 	function Berserker(name, hp, dmg) {
 	    Unit.apply(this, arguments);
 	    this.attackMethod = new DefaultAttack(dmg);
+	    this.icon = "B";
 	};
+	
+	Berserker.prototype = Object.create(Unit.prototype);
 
 	Berserker.prototype.takeMagicDamage = function (dmg) {
 	    return "Berserker invulnerable to magic";
@@ -459,7 +467,10 @@ $(function() {
 	function Rogue(name, hp, dmg) {
 	    Unit.apply(this, arguments);
 	    this.attackMethod = new DefaultAttack(dmg);
+	    this.icon = "R";
 	};
+	
+	Rogue.prototype = Object.create(Unit.prototype);
 
 	Rogue.prototype.attack = function (enemy) {
 	    enemy.takeDamage(this.dmg);
@@ -471,7 +482,10 @@ $(function() {
 	    this.infectPossibility = false;
 	    this.isUndead = true;
 	    this.setAbility(new Vampirism(this));
+	    this.icon = "V";
 	};
+	
+	Vampire.prototype = Object.create(Unit.prototype);
 
 	Vampire.prototype.setAbility = function (newAbility) {
 	    this.state.newStateAbility(newAbility);
@@ -483,7 +497,10 @@ $(function() {
 	    this.state = new State(name + " as Human", hp, dmg);
 	    this.wolfState = new State(name + " as Wolf", hp * 2, dmg * 2);
 	    this.setAbility(new Transformation(this));
+	    this.icon = "W";
 	};
+	
+	Werewolf.prototype = Object.create(Unit.prototype);
 
 	Werewolf.prototype.takeMagicDamage = function (dmg) {
 	    if (this.isWolf) {
@@ -493,8 +510,42 @@ $(function() {
 	    }
 	};
 	
+	function Spellcaster(name, hp, dmg, mana) {
+		Unit.apply(name, hp, dmg);
+		
+		this.mana = this.maxMana = mana;
+		this.spellbook = new Spellbook();
+		this.attackMethod = new DefaultAttack();
+	}
+
+	Spellcaster.prototype.getMana = function() {
+		return this.mana;
+	};
+
+	Spellcaster.prototype.method_name = function() {
+		return this.maxMana;
+	};
+
+	Spellcaster.prototype.addMana = function(value) {
+		ensureIsAlive();
+		
+		var mp = mana + value;
+		
+		if (mp > maxMana) {
+			mana = maxMana;
+			return;
+		}	
+		mana = mp;
+	};
+
+	Spellcaster.prototype.changeSpell = function(spell) {
+		ensureIsAlive();
+		
+		spell = spellbook.getSpell(spell);
+	};
+	
 	function Vampirism(target) {
-	this.target = target;
+		this.target = target;
 	};
 
 	Vampirism.prototype.action = function() {
@@ -581,7 +632,6 @@ $(function() {
 		target.takeMagicDamage(effect);
 	};
 
-
 	function State(name, hp, dmg) {
 	    this.hp = hp;
 	    this.maxHp = hp;
@@ -647,6 +697,9 @@ $(function() {
 	
 	var map = new Map();
 	var s = new Soldier("Soldier", 200, 20);
+	var b = new Berserker("Berserker", 200, 20);
 	
-	map.addUnit(s, 5);	
+	map.addUnit(s, 5);
+	map.addUnit(b, 6);
+	map.draw();
 });
