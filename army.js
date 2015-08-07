@@ -5,6 +5,8 @@ $(function() {
 		this.height = 8;
 		this.width = 8;
 		this.numberOfUnits = 0;
+		
+		this.draw();
 	}
 
 	Map.prototype.isInside = function(num) {
@@ -12,13 +14,11 @@ $(function() {
 	};
 
 	Map.prototype.addUnit = function(unit, index) {	
-		console.log(this.map.length);
-		
 		if (this.map[index].getUnit() != null) {
 			throw new LocationAllreadyHaveUnitException();
 		}
 		
-		this.map[index].setUnit(unit);
+		this.map[index].setUnit(unit);		
 		unit.setMap(this);
 		this.numberOfUnits += 1;
 	};
@@ -33,7 +33,7 @@ $(function() {
 	    for (var i = 0; i < this.map.length; i++) {  	
 	    	html += '<div id="' + i + '" class="cell">' + this.map[i].toString() + '</div>';
 	    }	    
-
+	    
 	    $("#map").html(html);
 	};
 
@@ -258,7 +258,7 @@ $(function() {
 	    this.isUndead = false;
 	    
 	    this.icon = " ";
-	    this.map = [];
+	    this.map;
 	    this.checkedMoves = [];
 	};
 
@@ -359,6 +359,10 @@ $(function() {
 
 	Unit.prototype.setIcon = function(icon) {
 	    this.icon = icon;
+	};
+	
+	Unit.prototype.setMap = function(map) {
+		this.map = map;
 	};
 
 	Unit.prototype.addMove = function(value) {
@@ -645,6 +649,4 @@ $(function() {
 	var s = new Soldier("Soldier", 200, 20);
 	
 	map.addUnit(s, 5);	
-	map.draw();
-
 });
