@@ -168,8 +168,8 @@ $(function () {
     };
 
     Map.prototype.start = function () {
-        for (; numberOfUnits > 1;) {
-            turn();
+        for (; this.numberOfUnits > 1;) {
+            this.turn();
             this.acted = [];
         }
     };
@@ -220,7 +220,7 @@ $(function () {
         enemy.takeDamage(this.dmg);
     };
 
-    DefaultAttack.prototype.counterAttack = function (enemy) {
+    DefaultAttack.prototype.counterattack = function (enemy) {
         enemy.takeDamage(this.dmg / 2);
     };
 
@@ -229,31 +229,32 @@ $(function () {
     }
 
     WerewolfAttack.prototype.attack = function (enemy) {
-        if (!enemy.getImmune()) {
-            enemy.setWolfState(new State(enemy.getName() + " as Wolf"), enemy.getMaxHp() * 2, enemy.getDamage() * 2);
-            enemy.setName(enemy.getName() + " as Wolf");
+        if (!enemy.isImmune()) {
+            enemy.setWolfState(new State(enemy.getName() + " as Wolf", enemy.getMaxHp() * 2, enemy.getDamage() * 2));
+            enemy.setName(enemy.getName() + " as Human");
             enemy.setAbility(new Transformation(enemy));
             enemy.setAttackMethod(new WerewolfAttack(enemy.getDamage()));
             enemy.changeImmunity();
         }
 
-        enemy.takeDamage(dmg);
+        enemy.takeDamage(this.dmg);
     };
 
-    Werewolf.prototype.counterattack = function (dmg) {
-        enemy.takeDamage(dmg / 2);
+    WerewolfAttack.prototype.counterattack = function (enemy) {
+        enemy.takeDamage(this.dmg / 2);
     };
 
-    function VampireAttack(self) {
-        AttackMethod.apply(this, self.getDamage());
+    function VampireAttack(self) {        
+        this.self = self;
+        this.dmg = self.getDamage();
     };
 
     VampireAttack.prototype.attack = function (enemy) {
-        if (enemy.getInfectPossibility()) {
+        if (!enemy.isImmune()) {
             enemy.setAbility(new Vampirism(enemy));
             enemy.setAttackMethod(new VampireAttack(enemy));
             enemy.setName("Vampire " + enemy.getName());
-            enemy.changeInfectPossibility();
+            enemy.changeImmunity();
             enemy.changeIsUndead();
         }
 
@@ -261,21 +262,22 @@ $(function () {
         this.self.useAbility();
     };
 
-    VampireAttack.prototype.counterAttack = function (enemy) {
+    VampireAttack.prototype.counterattack = function (enemy) {
         this.self.useAbility();
         enemy.takeDamage(this.dmg / 2);
     };
 
     function Unit(name, hp, dmg) {
         this.state = new State(name, hp, dmg);
+        this.ability = null;
         this.actionPoints = 4;
-
         this.wolfState = null;
-        this.infectPossibility = true;
-        this.isWolf = false;
-        this.isUndead = false;
 
-        this.icon = " ";
+        this.immunity = false;
+        this.wolf = false;
+        this.undead = false;
+
+        this.icon;
         this.map;
         this.checkedMoves = [];
     };
@@ -288,19 +290,19 @@ $(function () {
     };
 
     Unit.prototype.getDamage = function () {
-        return this.state.getStateDamage();
+        return this.state.getDamage();
     };
 
     Unit.prototype.getCurrentHp = function () {
-        return this.state.getStateCurrentHp();
+        return this.state.getCurrentHp();
     };
 
     Unit.prototype.getMaxHp = function () {
-        return this.state.getStateMaxHp();
+        return this.state.getMaxHp();
     };
 
     Unit.prototype.getName = function () {
-        return this.state.getStateName();
+        return this.state.getName();
     };
 
     Unit.prototype.getState = function () {
@@ -311,8 +313,8 @@ $(function () {
         return this.wolfState;
     }
 
-    Unit.prototype.getInfectPossibility = function () {
-        return this.infectPossibility;
+    Unit.prototype.isImmune = function () {
+        return this.immunity;
     };
 
     Unit.prototype.getIsWolf = function () {
@@ -336,27 +338,23 @@ $(function () {
     };
 
     Unit.prototype.getAttackDistance = function () {
-        return attackMethod.getDistance();
+        return this.attackMethod.getDistance();
     };
 
-    Unit.prototype.changeInfectPossibility = function () {
-        this.infectPossibility = !infectPossibility;
+    Unit.prototype.changeImmunity = function () {
+        this.immunity = !this.immunity;
     };
 
     Unit.prototype.changeIsWolf = function () {
-        this.isWolf = !isWolf;
+        this.wolf = !this.wolf;
     };
 
     Unit.prototype.changeIsUndead = function () {
-        this.isUndead = !isUndead;
+        this.undead = !this.undead;
     };
 
     Unit.prototype.setAbility = function (newAbility) {
-        this.state.newStateAbility(newAbility);
-
-        if (this.wolfState != null) {
-            this.wolfState.newStateAbility(newAbility);
-        }
+        this.ability = newAbility;
     };
 
     Unit.prototype.setAttackMethod = function (newMethod) {
@@ -364,7 +362,7 @@ $(function () {
     };
 
     Unit.prototype.setName = function setName(newName) {
-        state.newStateName(newName);
+        this.state.newName(newName);
     };
 
     Unit.prototype.setState = function (newState) {
@@ -423,15 +421,15 @@ $(function () {
 
     Unit.prototype.attack = function (enemy) {
         this.attackMethod.attack(enemy);
-        enemy.counterAttack(this);
+        enemy.counterattack(this);
     };
 
-    Unit.prototype.counterAttack = function (enemy) {
+    Unit.prototype.counterattack = function (enemy) {
         if (!this.ensureIsAlive()) {
             return;
         }
 
-        this.attackMethod.counterAttack(enemy);
+        this.attackMethod.counterattack(enemy);
     };
 
     Unit.prototype.takeDamage = function (dmg) {
@@ -448,7 +446,7 @@ $(function () {
 
     Unit.prototype.useAbility = function () {
         if (this.ensureIsAlive()) {
-            this.state.useAbility();
+            this.ability.action();
         }
     };
 
@@ -495,17 +493,14 @@ $(function () {
     function Vampire(name, hp, dmg) {
         Unit.apply(this, arguments);
         this.attackMethod = new VampireAttack(this);
-        this.infectPossibility = false;
-        this.isUndead = true;
         this.setAbility(new Vampirism(this));
+        console.log(this);
+        this.immunity = true;
+        this.undead = true;
         this.icon = "V";
     };
 
     Vampire.prototype = Object.create(Unit.prototype);
-
-    Vampire.prototype.setAbility = function (newAbility) {
-        this.state.newStateAbility(newAbility);
-    };
 
     function Werewolf(name, hp, dmg) {
         Unit.apply(this, arguments);
@@ -519,7 +514,7 @@ $(function () {
     Werewolf.prototype = Object.create(Unit.prototype);
 
     Werewolf.prototype.takeMagicDamage = function (dmg) {
-        if (this.isWolf) {
+        if (this.wolf) {
             this.takeDamage(dmg * 2);
         } else {
             this.takeDamage(dmg);
@@ -556,11 +551,20 @@ $(function () {
         this.mana = mp;
     };
 
+    Spellcaster.prototype.useSpell = function (target) {
+        this.mana -= this.spell.getCost();
+        this.spell.action(target);
+    }
+
     Spellcaster.prototype.changeSpell = function (spell) {
         ensureIsAlive();
 
         spell = this.spellbook.getSpell(spell);
     };
+
+    Spellcaster.prototype.toString = function () {
+        return this.state.toString() + " Mana: " + this.mana + "/" + this.maxMana;
+    }
 
     function Battlemage(name, hp, dmg, mana) {
         Spellcaster.apply(this, arguments);
@@ -607,10 +611,10 @@ $(function () {
         }
 
         this.attackMethod.attack(enemy);
-        enemy.counterAttack(this);
+        enemy.counterattack(this);
     };
 
-    Warlock.prototype.counterAttack = function (enemy) {
+    Warlock.prototype.counterattack = function (enemy) {
         if (!ensureIsAlive()) {
             return;
         }
@@ -734,7 +738,7 @@ $(function () {
     };
 
     Vampirism.prototype.action = function () {
-        this.target.addHitPoints(this.target.getDamage / 4);
+        this.target.addHitPoints(this.target.getDamage() / 4);
     };
 
     function Transformation(target) {
@@ -758,8 +762,12 @@ $(function () {
         this.spellbook.push(new Fireball("Fireball", 40, 50));
     };
 
-    Spellbook.prototype.getSpell = function (spell) {
-        return this.spellbook[spell];
+    Spellbook.prototype.getSpell = function (name) {
+        for (var i = 0; i < this.spellbook.length; i++) {
+            if (this.spellbook[i].getName() == name) {
+                return this.spellbook[i];
+            };
+        }
     };
 
     Spellbook.prototype.addSpell = function (spell) {
@@ -805,6 +813,8 @@ $(function () {
         Spell.apply(this, arguments);
     };
 
+    Heal.prototype = Object.create(Spell.prototype);
+
     Heal.prototype.action = function (target) {
         target.addHitPoints(effect);
     };
@@ -813,8 +823,10 @@ $(function () {
         Spell.apply(this, arguments);
     };
 
+    Fireball.prototype = Object.create(Spell.prototype);
+
     Fireball.prototype.action = function (target) {
-        target.takeMagicDamage(effect);
+        target.takeMagicDamage(this.effect);
     };
 
     function State(name, hp, dmg) {
@@ -822,41 +834,34 @@ $(function () {
         this.hp = hp;
         this.maxHp = hp;
         this.dmg = dmg;
-        this.ability = null;
     };
 
-    State.prototype.getStateCurrentHp = function () {
+    State.prototype.getCurrentHp = function () {
         return this.hp;
     };
 
-    State.prototype.getStateMaxHp = function () {
+    State.prototype.getMaxHp = function () {
         return this.maxHp;
     };
 
-    State.prototype.getStateDamage = function () {
-        return this.damage;
+    State.prototype.getDamage = function () {
+        return this.dmg;
     };
 
-    State.prototype.getStateName = function () {
+    State.prototype.getName = function () {
         return this.name;
     };
 
-    State.prototype.newStateName = function (name) {
-        this.name = newName;
+    State.prototype.newName = function (name) {
+        this.name = name;
     };
 
-    State.prototype.newStateAbility = function (ability) {
+    State.prototype.newAbility = function (ability) {
         this.ability = ability;
     };
 
-    State.prototype.newStateDamage = function (dmg) {
+    State.prototype.newDamage = function (dmg) {
         this.dmg = dmg;
-    };
-
-    State.prototype.useStateAbility = function () {
-        if (this.ability != null) {
-            this.ability.action();
-        }
     };
 
     State.prototype.removeHp = function (value) {
@@ -870,7 +875,7 @@ $(function () {
     State.prototype.addHp = function (value) {
         var total = this.hp + value;
 
-        if (total > maxHp) {
+        if (total > this.maxHp) {
             this.hp = this.maxHp;
             return;
         }
@@ -878,7 +883,7 @@ $(function () {
     };
 
     State.prototype.toString = function () {
-        return this.name + " [HP: " + this.hp + "/" + this.maxHp + " Damage: " + this.dmg + "]";
+        return this.name + " | HP: " + this.hp + "/" + this.maxHp + " Damage: " + this.dmg;
     };
 
     var map = new Map();
@@ -903,10 +908,16 @@ $(function () {
     map.addUnit(p, 12);
     map.addUnit(h, 13);
 
-    map.draw();
-
-    s.attack(b);
-
+    console.log(v.toString());
     console.log(s.toString());
-    console.log(b.toString());
+    
+    s.attack(v);
+    v.attack(s);
+    
+    console.log(v.toString());
+    console.log(s.toString());
+    
+    map.draw();
+    // map.start();
+
 });
