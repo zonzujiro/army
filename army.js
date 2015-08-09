@@ -106,13 +106,10 @@ $(function () {
     };
 
     Map.prototype.turn = function () {
-        var unit;
-        console.log("turn");
         for (var i = 0; i < this.map.length; i++) {
-            unit = this.map[i].getUnit();
+            var unit = this.map[i].getUnit();
 
             if (unit != null && this.acted.indexOf(unit) == -1) {
-                console.log("acting");
                 unit.act(this.map[i]);
                 this.acted.push(unit);
             }
@@ -125,11 +122,18 @@ $(function () {
     };
 
     Map.prototype.searchUnit = function (unit) {
-        for (var i = 0; i < map.length; i++) {
-            if (map[i].getUnit() == unit) {
-                return map[i];
+        for (var i = 0; i < this.map.length; i++) {
+            if (this.map[i].getUnit() == unit) {
+                return this.map[i];
             }
         }
+    };
+    
+    Map.prototype.checkPath = function(start, target) {
+        var x = start.getIndex() % 8;
+        var y = Math.floor(start.getIndex() / 8);
+        var index = x * 8 + y; // convert to index
+        
     };
 
     Map.prototype.start = function () {
@@ -138,7 +142,7 @@ $(function () {
         //     console.log(1);
         //     this.acted = [];
         // }
-        this.turn();            
+        this.turn();
     };
 
     function Location(index) {
@@ -178,15 +182,15 @@ $(function () {
         this.dmg = dmg;
         this.distance = 1;
     };
-    
-    AttackMethod.prototype.getDistance = function() {
+
+    AttackMethod.prototype.getDistance = function () {
         return this.distance;
     };
 
     function DefaultAttack(dmg) {
         AttackMethod.apply(this, arguments);
     };
-    
+
     DefaultAttack.prototype = Object.create(AttackMethod.prototype);
 
     DefaultAttack.prototype.attack = function (enemy) {
@@ -200,7 +204,7 @@ $(function () {
     function WerewolfAttack(dmg) {
         AttackMethod.apply(this, arguments);
     }
-    
+
     WerewolfAttack.prototype = Object.create(AttackMethod.prototype);
 
     WerewolfAttack.prototype.attack = function (enemy) {
@@ -219,11 +223,11 @@ $(function () {
         enemy.takeDamage(this.dmg / 2);
     };
 
-    function VampireAttack(self) {        
+    function VampireAttack(self) {
         this.self = self;
         this.dmg = self.getDamage();
     };
-    
+
     VampireAttack.prototype = Object.create(AttackMethod.prototype);
 
     VampireAttack.prototype.attack = function (enemy) {
@@ -288,7 +292,7 @@ $(function () {
 
     Unit.prototype.getWolfState = function () {
         return this.wolfState;
-    }
+    };
 
     Unit.prototype.isImmune = function () {
         return this.immunity;
@@ -300,7 +304,7 @@ $(function () {
 
     Unit.prototype.getIsUndead = function () {
         return this.isUndead;
-    }
+    };
 
     Unit.prototype.getIcon = function () {
         return this.icon;
@@ -344,7 +348,7 @@ $(function () {
 
     Unit.prototype.setState = function (newState) {
         this.state = newState;
-    }
+    };
 
     Unit.prototype.setWolfState = function (newState) {
         this.wolfState = newState;
@@ -366,22 +370,21 @@ $(function () {
         var index = currentLocation.getIndex();
         var enemies = this.map.checkEnemies(this);
 
-        if (enemies.length > 0) {            
+        if (enemies.length > 0) {
             var target = this.chooseEnemy(enemies, currentLocation);
-            var distanceToEnemy = currentLocation.distance(target);
-                        
-            if (distanceToEnemy <= this.getAttackDistance()) {
+            
+            if (currentLocation.distance(target) <= this.getAttackDistance()) {
                 this.attack(target.getUnit());
                 return;
             }
-
-            // attack(target.chooseEnemy(currentLocation.getUnit()));
+            
+            this.attack(target.chooseEnemy(currentLocation.getUnit()));
             return;
         }
 
         for (var i = 1; i <= actionPoints; i++) {
             var dir = map.checkArea(index);
-
+ 
             if (dir.getUnit() == null) {
                 move(dir);
                 index = getLocation().getIndex();
@@ -408,22 +411,13 @@ $(function () {
 
         this.attackMethod.counterattack(enemy);
     };
-    
+
     Unit.prototype.chooseEnemy = function (enemies, loc) {
-        var nearest = enemies.reduce(
+        return enemies.reduce(
             function (prev, current, index, array) {
                 return loc.distance(current) > loc.distance(prev) ? prev : current;
             }
         );
-        
-        console.log(nearest);
-        
-        // return map.reduce(
-        //     function (prev, current, index, array) {
-        //         return loc.distance(current) > loc.distance(prev) ? prev : current;
-        //     }
-        // );
-        return nearest;
     };
 
     Unit.prototype.takeDamage = function (dmg) {
@@ -455,24 +449,24 @@ $(function () {
     };
 
     Soldier.prototype = Object.create(Unit.prototype);
-    
-    function Demon (name, hp, dmg, master, map) {
+
+    function Demon(name, hp, dmg, master, map) {
         Soldier.apply(this, arguments);
         this.master = master;
         this.map = map;
         this.immunity = true;
         this.master.setSlave(this);
     }
-    
+
     Demon.prototype = Object.create(Soldier.prototype);
-    
-    Demon.prototype.getLocation = function() {
+
+    Demon.prototype.getLocation = function () {
         return this.map.searchUnit(this.master);
     };
-    
-    Demon.prototype.takeDamage = function(dmg) {
+
+    Demon.prototype.takeDamage = function (dmg) {
         this.state.removeHp(dmg);
-        
+
         if (!this.ensureIsAlive()) {
             this.master.freeSlave();
         }
@@ -565,6 +559,14 @@ $(function () {
         }
         this.mana = mp;
     };
+    
+    Spellcaster.prototype.getAttackDistance = function () {
+        if (this.spell.getCost() >= this.mana) {
+            return this.spell.getRange();
+        }
+        return this.attackMethod.getDistance();
+    };
+
 
     Spellcaster.prototype.useSpell = function (target) {
         this.mana -= this.spell.getCost();
@@ -573,7 +575,7 @@ $(function () {
 
     Spellcaster.prototype.changeSpell = function (spell) {
         ensureIsAlive();
-        
+
         spell = this.spellbook.getSpell(spell);
     };
 
@@ -613,15 +615,15 @@ $(function () {
     Warlock.prototype = Object.create(Battlemage.prototype);
 
     Warlock.prototype.attack = function (enemy) {
-        var distance = getLocation().distance(enemy.getLocation());
+        var distance = this.getLocation().distance(enemy.getLocation());
 
         if (distance == 1 && this.slave != null) {
             slaveAttack(enemy);
             return;
         }
 
-        if (!wolf && mana >= spell.getCost()) {
-            useSpell(enemy);
+        if (!this.wolf && this.mana >= this.spell.getCost()) {
+            this.useSpell(enemy);
             return;
         }
 
@@ -636,12 +638,12 @@ $(function () {
 
         var distance = this.getLocation().distance(enemy.getLocation());
 
-        if (distance > this.attackMethod.geteRange()) {
+        if (distance > this.attackMethod.getDistance()) {
             console.log(this.getName() + " tried to counterattack " + enemy.getName() + " but he too far");
             return;
         }
 
-        attackMethod.counterattack(enemy);
+        this.attackMethod.counterattack(enemy);
     };
 
     Warlock.prototype.demon = function () {
@@ -819,8 +821,8 @@ $(function () {
     Spell.prototype.getEffect = function () {
         return this.effect;
     };
-    
-     Spell.prototype.setEffect = function (value) {
+
+    Spell.prototype.setEffect = function (value) {
         this.effect = value;
     };
 
@@ -893,7 +895,7 @@ $(function () {
 
     State.prototype.addHp = function (value) {
         var total = this.hp + value;
-    
+
         if (total > this.maxHp) {
             this.hp = this.maxHp;
             return;
@@ -930,7 +932,7 @@ $(function () {
 
     console.log(wz.toString());
     console.log(s.toString());
-     
+
     map.draw();
     map.start();
 
