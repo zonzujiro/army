@@ -7,7 +7,6 @@ $(function () {
         this.height = 8;
         this.width = 8;
         this.numberOfUnits = 0;
-        this.hui;
 
         for (var i = 0; i < 64; i++) {
             this.map.push(new Location(i));
