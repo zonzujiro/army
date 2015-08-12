@@ -125,7 +125,7 @@ $(function () {
         }
 
         targetIndex = startX + startY * 8;
-        
+
         return this.map[targetIndex];
     };
 
@@ -138,15 +138,15 @@ $(function () {
                 this.acted.push(unit);
             }
         }
-        
-        this.acted = [];        
-        
+
+        this.acted = [];
+
         if (this.numberOfUnits > 1) {
-            setTimeout(this.start.bind(this), 666);    
+            setTimeout(this.start.bind(this), 666);
         } else {
             this.draw();
         }
-        
+
     };
 
     function Location(index) {
@@ -181,38 +181,38 @@ $(function () {
         }
         return this.unit.getIcon();
     };
-    
+
     function Observer() {
         this.handlers = [];
     }
-     
+
     Observer.prototype.subscribe = function (unit) {
         this.handlers.push(unit);
     };
-    
+
     Observer.prototype.unsubscribe = function (unit) {
-         this.handlers = this.handlers.filter(
-                function(item) {
-                    if (item !== unit) {
-                        return item;
-                    }
+        this.handlers = this.handlers.filter(
+            function (item) {
+                if (item !== unit) {
+                    return item;
                 }
-            );
+            }
+        );
     };
-     
+
     // Observer.prototype.fire = function (o, thisObj) {
     //     var scope = thisObj || window;
-        
+
     //         this.handlers.forEach(function(item) {
     //             item.call(scope, o);
     //         });
     // };
-    
-    Observer.prototype.notify = function() {
+
+    Observer.prototype.notify = function () {
         this.handlers.forEach(addHp(getMaxHp() / 4));
     };
-    
-    Observer.prototype.sendNotification = function(first_argument) {
+
+    Observer.prototype.sendNotification = function (first_argument) {
         // body...
     };
 
@@ -410,7 +410,7 @@ $(function () {
         var index = unitLocation.getIndex();
         var enemies = this.map.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, unitLocation);
-        
+
         if (unitLocation.distance(target) <= this.getAttackDistance()) {
             this.attack(target.getUnit());
             return;
@@ -451,8 +451,8 @@ $(function () {
     };
 
     Unit.prototype.takeDamage = function (dmg) {
-        this.state.removeHp(dmg);        
-        
+        this.state.removeHp(dmg);
+
         if (!this.ensureIsAlive()) {
             this.map.removeUnit(this);
         }
@@ -636,30 +636,30 @@ $(function () {
     };
 
     Wizard.prototype = Object.create(Battlemage.prototype);
-    
-    function Necromancer (name, hp, dmg, mana) {
+
+    function Necromancer(name, hp, dmg, mana) {
         Battlemage.apply(this, arguments);
         this.attackMethod = new RangeAttack(dmg);
         this.spell = this.spellbook.getSpell("Fireball");
         this.icon = "N";
     };
-    
+
     Necromancer.prototype = Object.create(Battlemage.prototype);
-    
-    Necromancer.prototype.takeDamage = function(dmg) {
+
+    Necromancer.prototype.takeDamage = function (dmg) {
         if (ensureIsAlive()) {
             state.removeHp();
-            
+
             if (!ensureIsAlive()) {
-                
+
             }
         };
     };
-    
-    Necromancer.prototype.useSpell = function(target) {
+
+    Necromancer.prototype.useSpell = function (target) {
         var cost = this.spell.getCost();
         var distance = this.getLocation().distance(target.getLocation());
-        
+
         this.mana -= cost;
         this.spell.action(target);
         target.addObserver(this);
@@ -994,19 +994,6 @@ $(function () {
     console.log(r.toString());
 
     map.draw();
-    // map.turn();
-    // map.draw();
-    // map.turn();
-    // map.draw();
-    // map.turn();
-    // map.draw();
-    // map.turn();
-    // map.draw();
-    // map.turn();
-    // map.draw();
-    // map.turn();
-    // map.draw();
-    // map.turn();
     map.start();
     map.draw();
 
