@@ -77,6 +77,7 @@ $(function () {
     Map.prototype.moveToLocation = function (unit, loc) {
         this.removeUnit(unit);
         this.addUnit(unit, loc.getIndex());
+        map.draw();
     };
 
     Map.prototype.checkArea = function (index, actionPoints) {
@@ -105,18 +106,6 @@ $(function () {
         );
     };
 
-    Map.prototype.turn = function () {
-        for (var i = 0; i < this.map.length; i++) {
-            var unit = this.map[i].getUnit();
-
-            if (unit != null && this.acted.indexOf(unit) == -1) {
-                unit.act(this.map[i]);
-                this.acted.push(unit);
-            }
-        }
-        this.acted = [];
-    };
-
     Map.prototype.removeUnit = function (unit) {
         this.searchUnit(unit).setUnit(null);
         this.numberOfUnits -= 1;
@@ -137,9 +126,6 @@ $(function () {
         var targetY = Math.floor(target.getIndex() / 8);
         var targetIndex;
 
-        // console.log("start " + start.getUnit() + " x: " + startX + " y: " + startY);
-        // console.log("target " + target.getUnit() + " x: " + targetX + " y: " + targetY);
-
         if (startX < targetX) {
             startX += 1;
         } else if (startX > targetX) {
@@ -153,16 +139,36 @@ $(function () {
         }
 
         targetIndex = startX + startY * 8;
+<<<<<<< HEAD
+        
+        if (this.map[targetIndex].getUnit() == null) {
+            return this.map[targetIndex];
+        }
+        return null;
+=======
         // console.log("target index :" + targetIndex);
         return this.map[targetIndex];
+>>>>>>> origin/master
     };
 
     Map.prototype.start = function () {
-        for (; this.numberOfUnits > 1;) {
-            this.turn();
-            console.log(1);
+        for (var i = 0; i < this.map.length; i++) {
+            var unit = this.map[i].getUnit();
+
+            if (unit != null && this.acted.indexOf(unit) == -1) {
+                unit.act(this.map[i]);
+                this.acted.push(unit);
+            }
         }
-        // this.turn();
+        
+        this.acted = [];        
+        
+        if (this.numberOfUnits > 1) {
+            setTimeout(this.start.bind(this), 666);    
+        } else {
+            this.draw();
+        }
+        
     };
 
     function Location(index) {
@@ -431,8 +437,10 @@ $(function () {
     };
 
     Unit.prototype.takeDamage = function (dmg) {
-        if (this.ensureIsAlive()) {
-            this.state.removeHp(dmg);
+        this.state.removeHp(dmg);        
+        
+        if (!this.ensureIsAlive()) {
+            this.map.removeUnit(this);
         }
     };
 
@@ -937,26 +945,28 @@ $(function () {
     // map.addUnit(v, 9);
     map.addUnit(wz, 63);
     // map.addUnit(wk, 11);
-    // map.addUnit(p, 12);
+    map.addUnit(p, 49);
     // map.addUnit(h, 13);
 
     console.log(s.toString());
     console.log(r.toString());
 
     map.draw();
-    map.turn();
+    // map.turn();
+    // map.draw();
+    // map.turn();
+    // map.draw();
+    // map.turn();
+    // map.draw();
+    // map.turn();
+    // map.draw();
+    // map.turn();
+    // map.draw();
+    // map.turn();
+    // map.draw();
+    // map.turn();
+    map.start();
     map.draw();
-    map.turn();
-    map.draw();
-    map.turn();
-    map.draw();
-    map.turn();
-    map.draw();
-    map.turn();
-    map.draw();
-    map.turn();
-    map.draw();
-    map.turn();
 
     console.log(s.toString());
     console.log(r.toString());
