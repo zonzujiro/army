@@ -139,16 +139,8 @@ $(function () {
         }
 
         targetIndex = startX + startY * 8;
-<<<<<<< HEAD
-        
-        if (this.map[targetIndex].getUnit() == null) {
-            return this.map[targetIndex];
-        }
-        return null;
-=======
-        // console.log("target index :" + targetIndex);
+
         return this.map[targetIndex];
->>>>>>> origin/master
     };
 
     Map.prototype.start = function () {
