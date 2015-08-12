@@ -154,11 +154,7 @@ $(function () {
 
         targetIndex = startX + startY * 8;
         // console.log("target index :" + targetIndex);
-
-        if (this.map[targetIndex].getUnit() == null) {
-            return this.map[targetIndex];
-        }
-        return null;
+        return this.map[targetIndex];
     };
 
     Map.prototype.start = function () {
@@ -393,31 +389,14 @@ $(function () {
     Unit.prototype.act = function (unitLocation) {
         var index = unitLocation.getIndex();
         var enemies = this.map.searchAllEnemies(this);
-        var target;
-
-        if (enemies.length > 0) {
-            target = this.chooseNearestEnemy(enemies, unitLocation);
-            if (unitLocation.distance(target) <= this.getAttackDistance()) {
-                this.attack(target.getUnit());
-                return;
-            }
-
-            target = this.map.findPathToEnemy(unitLocation, target);
-            if (target) {
-                this.move(target);
-                return;
-            }
+        var target = this.chooseNearestEnemy(enemies, unitLocation);
+        
+        if (unitLocation.distance(target) <= this.getAttackDistance()) {
+            this.attack(target.getUnit());
+            return;
         }
 
-        // for (var i = 1; i <= actionPoints; i++) {
-        //     var dir = map.checkArea(index);
-
-        //     if (dir.getUnit() == null) {
-        //         move(dir);
-        //         index = getLocation().getIndex();
-        //     }
-        // }
-
+        this.move(this.map.findPathToEnemy(unitLocation, target));
     };
 
     Unit.prototype.move = function (loc) {
