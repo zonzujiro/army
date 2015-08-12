@@ -35,20 +35,6 @@ $(function () {
         $("#map").html(html);
     };
 
-    Map.prototype.checkDestination = function (limit, delta, current) {
-        for (var i = limit; i > 0; i--) {
-            current += delta;
-
-            if (current > 0 && current < 64) {
-                if (map[current].getUnit != null) {
-                    return current;
-                }
-                checkedMoves.push(current);
-            }
-        }
-        checkedMoves.push(current);
-    };
-
     // Map.prototype.checkArea = function(x, y, actionPoints) {
     //     var targetX, targetY, directionX, directionY;    
     //     var target;
@@ -195,6 +181,40 @@ $(function () {
         }
         return this.unit.getIcon();
     };
+    
+    function Observer() {
+        this.handlers = [];
+    }
+     
+    Observer.prototype.subscribe = function (unit) {
+        this.handlers.push(unit);
+    };
+    
+    Observer.prototype.unsubscribe = function (unit) {
+         this.handlers = this.handlers.filter(
+                function(item) {
+                    if (item !== unit) {
+                        return item;
+                    }
+                }
+            );
+    };
+     
+    // Observer.prototype.fire = function (o, thisObj) {
+    //     var scope = thisObj || window;
+        
+    //         this.handlers.forEach(function(item) {
+    //             item.call(scope, o);
+    //         });
+    // };
+    
+    Observer.prototype.notify = function() {
+        this.handlers.forEach(addHp(getMaxHp() / 4));
+    };
+    
+    Observer.prototype.sendNotification = function(first_argument) {
+        // body...
+    };
 
     function AttackMethod(dmg) {
         this.dmg = dmg;
@@ -279,6 +299,8 @@ $(function () {
         this.icon;
         this.map;
         this.checkedMoves = [];
+        this.observers = new Observer();
+        this.observable = new Observer();
     };
 
     Unit.prototype.ensureIsAlive = function () {
@@ -422,7 +444,7 @@ $(function () {
 
     Unit.prototype.chooseNearestEnemy = function (enemies, loc) {
         return enemies.reduce(
-            function (prev, current, index, array) {
+            function (prev, current) {
                 return loc.distance(current) > loc.distance(prev) ? prev : current;
             }
         );
@@ -611,16 +633,44 @@ $(function () {
         Battlemage.apply(this, arguments);
         this.spell = this.spellbook.getSpell("Fireball");
         this.icon = "Wz";
-    }
+    };
 
     Wizard.prototype = Object.create(Battlemage.prototype);
+    
+    function Necromancer (name, hp, dmg, mana) {
+        Battlemage.apply(this, arguments);
+        this.attackMethod = new RangeAttack(dmg);
+        this.spell = this.spellbook.getSpell("Fireball");
+        this.icon = "N";
+    };
+    
+    Necromancer.prototype = Object.create(Battlemage.prototype);
+    
+    Necromancer.prototype.takeDamage = function(dmg) {
+        if (ensureIsAlive()) {
+            state.removeHp();
+            
+            if (!ensureIsAlive()) {
+                
+            }
+        };
+    };
+    
+    Necromancer.prototype.useSpell = function(target) {
+        var cost = this.spell.getCost();
+        var distance = this.getLocation().distance(target.getLocation());
+        
+        this.mana -= cost;
+        this.spell.action(target);
+        target.addObserver(this);
+    };
 
     function Warlock(name, hp, dmg, mana) {
         Battlemage.apply(this, arguments);
         this.spell = this.spellbook.getSpell("Fireball");
         this.icon = "Wk";
         this.slave = null;
-    }
+    };
 
     Warlock.prototype = Object.create(Battlemage.prototype);
 
