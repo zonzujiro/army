@@ -7,7 +7,6 @@ $(function () {
         this.height = 8;
         this.width = 8;
         this.numberOfUnits = 0;
-        this.hui;
 
         for (var i = 0; i < 64; i++) {
             this.map.push(new Location(i));
@@ -141,10 +140,7 @@ $(function () {
 
         targetIndex = startX + startY * 8;
         
-        if (this.map[targetIndex].getUnit() == null) {
-            return this.map[targetIndex];
-        }
-        return null;
+        return this.map[targetIndex];
     };
 
     Map.prototype.start = function () {
