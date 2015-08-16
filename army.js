@@ -3,14 +3,24 @@
 $(function () {
     function Map() {
         this.map = [];
-        this.acted = [];
-        this.height = 8;
-        this.width = 8;
-
-        for (var i = 0; i < 64; i++) {
-            this.map.push(new Location(i));
+        this.acted = [];        
+        this.directions = {
+            "n": new Location(0, -1),
+            "ne": new Location(1, -1),
+            "e": new Location(1, 0),
+            "se": new Location(1, 1),
+            "s": new Location(0, 1),
+            "sw": new Location(-1, 1),
+            "w": new Location(-1, 0),
+            "nw": new Location(-1, -1)
+        };
+        
+        for (var y = 7; y >= 0; y--) {
+            for (var x = 0; x < 8; x++) {
+                this.map.push(new Location (x, y));
+            }
         }
-
+        
         this.draw();
     }
 
@@ -25,43 +35,46 @@ $(function () {
 
     Map.prototype.draw = function () {
         var html = '';
-
+        
         for (var i = 0; i < this.map.length; i++) {
-            html += '<div id="' + i + '" class="cell">' + this.map[i].toString() + '</div>';
+            html += '<div id="x:' + this.map[i].x + ' y:'+  this.map[i].y +' index:' + i +'" class="cell">' + this.map[i].toString() + '</div>';
         }
 
         $("#map").html(html);
     };
 
-    // Map.prototype.checkArea = function(x, y, actionPoints) {
-    //     var targetX, targetY, directionX, directionY;    
-    //     var target;
-
-    //     for (var i = 1; i <= actionPoints; actionPoints--) {    
-    //      for (value in directions) {
-    //          targetX = x + value.getX() * i;
-    //          targetY = y + value.getY() * i;
-    //          directionX = x + value.getX();
-    //          directionY = y + value.getY();
-
-    //          if (isInside(targetX) && isInside(targetY) && isInside(directionX) && isInside(directionY)) {
-    //              if (map[directionX][directionY].getUnit() == null) {
-    //                  target = map[directionX][directionY];
-    //              }
-
-    //              if (map[targetX][targetY].getUnit() != null && map[directionX][directionY].getUnit() == null) {                  
-    //                  return map[directionX][directionY];
-    //              }                
-    //          }
-    //      }
-    //  }
-    //  return target;    
-    // };
+    Map.prototype.checkArea = function(loc) {
+        var x, y, index, checked = [];
+        
+        function isInside(num) {
+            return num > 0 && num < 8;
+        }
+        
+        for (var value in this.directions) {
+            x = loc.x + this.directions[value].x;
+            y = loc.y + this.directions[value].y;
+            console.log("x " + x + " y " + y);
+            
+            if (isInside(x) && isInside(y)) {
+                index = x + y * 8;
+                index = index.x + index.y * 8;
+                console.log("index: " + index);
+                
+                if (this.map[index].unit == null) {
+                    checked.push(this.map[index]);                    
+                }
+            }
+        }
+        console.log(checked);
+        return checked;
+    };
 
     Map.prototype.moveToLocation = function (unit, loc) {
+        var index = loc.x + loc.y * 8;
+        console.log(index);
+        
         this.removeUnit(unit);
-        this.addUnit(unit, loc.getIndex());
-        map.draw();
+        this.addUnit(unit, index);
     };
 
     Map.prototype.calculateUnits = function () {
@@ -73,24 +86,6 @@ $(function () {
             }
         }
         return counter;
-    };
-
-    Map.prototype.checkArea = function (index, actionPoints) {
-        var x = index % 8;
-        var y = Math.floor(index / 8);
-
-        for (var i = 1; i <= actionPoints; actionPoints--) {
-            checkDestination(x, -1, index);
-            checkDestination(7 - actionPoints, 1, index);
-
-            checkDestination(y, -8, index);
-            checkDestination(7 - actionPoints, 8, index);
-
-            checkDestination(Math.min(x, y), -9, index);
-            checkDestination(Math.min(7 - actionPoints, y), -7, index);
-            checkDestination(Math.min(x, 7 - actionPoints), 7, index);
-            checkDestination(Math.min(7 - actionPoints, 7 - actionPoints), 9, index);
-        }
     };
 
     Map.prototype.searchAllEnemies = function (self) {
@@ -110,29 +105,28 @@ $(function () {
             }
         }
     };
+    
+    Map.prototype.findPathToEnemy = function (current, target) {
+        var currentX = current.getX(), currentY = current.getY();
+        var targetX = target.getX(), targetY = target.getY();
+        var index;
 
-    Map.prototype.findPathToEnemy = function (start, target) {
-        var startX = start.getIndex() % 8;
-        var startY = Math.floor(start.getIndex() / 8);
-        var targetX = target.getIndex() % 8;
-        var targetY = Math.floor(target.getIndex() / 8);
-        var targetIndex;
-
-        if (startX < targetX) {
-            startX += 1;
-        } else if (startX > targetX) {
-            startX -= 1;
+        if (currentX < targetX) {
+            currentX += 1;
+        } else if (currentX > targetX) {
+            currentX -= 1;
         }
 
-        if (startY < targetY) {
-            startY += 1;
-        } else if (startY > targetY) {
-            startY -= 1;
+        if (currentY < targetY) {
+            currentY += 1;
+        } else if (currentY > targetY) {
+            currentY -= 1;
         }
 
-        targetIndex = startX + startY * 8;
+        index = currentX + currentY * 8;
+        console.log(index);
 
-        return this.map[targetIndex];
+        return this.map[index];
     };
 
     Map.prototype.start = function () {
@@ -142,6 +136,7 @@ $(function () {
             if (this.calculateUnits() > 1 && unit != null && this.acted.indexOf(unit) == -1) {
                 unit.act(this.map[i]);
                 this.acted.push(unit);
+                this.draw();
             }
         }
 
@@ -155,13 +150,18 @@ $(function () {
         }
     };
 
-    function Location(index) {
-        this.index = index;
+    function Location(x, y) {
+        this.x = x;
+        this.y = y;
         this.unit = null;
     };
 
-    Location.prototype.getIndex = function () {
-        return this.index;
+    Location.prototype.getX = function () {
+        return this.x;
+    };
+    
+    Location.prototype.getY = function () {
+        return this.y;
     };
 
     Location.prototype.getUnit = function () {
@@ -173,12 +173,11 @@ $(function () {
     };
 
     Location.prototype.distance = function (loc) {
-        var x = this.index % 8;
-        var y = Math.floor(this.index / 8);
-        var targetX = loc.getIndex() % 8;
-        var targetY = Math.floor(loc.getIndex() / 8);
-
-        return Math.floor(Math.hypot(x - targetX, y - targetY));
+        return Math.floor(Math.hypot(this.x - loc.x, this.y - loc.y));
+    };
+    
+    Location.prototype.plus = function(loc) {
+        return new Location(this.x + loc.x, this.y + loc.y);
     };
 
     Location.prototype.toString = function () {
@@ -387,12 +386,11 @@ $(function () {
     Unit.prototype.act = function (unitLocation) {
         console.log(this.getName() + " turn");
 
-        var index = unitLocation.getIndex();
         var enemies = this.map.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, unitLocation);
 
         if (unitLocation.distance(target) <= this.getAttackDistance()) {
-            console.log(this.getName() + " attacking " + unitLocation.distance(target));
+            console.log(this.getName() + " attacking " + target.unit.state.name);
             this.attack(target.getUnit());
             return;
         }
@@ -401,7 +399,6 @@ $(function () {
     };
 
     Unit.prototype.move = function (loc) {
-        console.log(this.getName() + " moving");
         this.map.moveToLocation(this, loc);
     };
 
@@ -522,6 +519,7 @@ $(function () {
     function Rogue(name, hp, dmg) {
         Unit.apply(this, arguments);
         this.attackMethod = new DefaultAttack(dmg);
+        this.ability = new Evading(this, this.map);
         this.icon = "R";
     };
 
@@ -529,6 +527,10 @@ $(function () {
 
     Rogue.prototype.attack = function (enemy) {
         enemy.takeDamage(this.getDamage());
+    };
+    
+    Rogue.prototype.useAbility = function() {
+        this.ability.action(this.map);
     };
 
     function Vampire(name, hp, dmg) {
@@ -652,13 +654,6 @@ $(function () {
         this.mana -= cost;
         target.addObserver(this);
         this.spell.action(target);
-    };
-
-    Necromancer.prototype.attack = function (enemy) {
-        enemy.addObserver(this);
-
-        this.attackMethod.attack(enemy);
-        enemy.counterattack(this);
     };
 
     function Warlock(name, hp, dmg, mana) {
@@ -805,9 +800,23 @@ $(function () {
         this.spell.action(target);
         console.log(this.getName() + " uses " + this.spell.getSpellName() + " on " + target.getName())
     };
+    
+    function Ability (target) {
+        this.target = target;
+    }
+    
+    function Evading (target, map) {
+        Ability.apply(this, arguments);
+    }
+    
+    Evading.prototype.action = function(map) {
+        var loc = this.target.getLocation();
+        
+        map.checkArea(loc);
+    };
 
     function Vampirism(target) {
-        this.target = target;
+        Ability.apply(this, arguments);
     };
 
     Vampirism.prototype.action = function () {
@@ -815,7 +824,7 @@ $(function () {
     };
 
     function Transformation(target) {
-        this.target = target;
+        Ability.apply(this, arguments);
     };
 
     Transformation.prototype.action = function () {
@@ -932,10 +941,6 @@ $(function () {
         this.name = name;
     };
 
-    State.prototype.newAbility = function (ability) {
-        this.ability = ability;
-    };
-
     State.prototype.newDamage = function (dmg) {
         this.dmg = dmg;
     };
@@ -976,8 +981,9 @@ $(function () {
     var h = new Healer("Healer", 130, 10, 300);
     var n = new Necromancer("Necromancer", 300, 20, 200);
 
-    map.addUnit(s, 0);
-    // map.addUnit(r, 7);
+    // map.addUnit(s, 0);
+    map.addUnit(r, 7);
+    r.useAbility();
     // map.addUnit(b, 6);
     // map.addUnit(w, 8);
     // map.addUnit(v, 9);
@@ -985,13 +991,13 @@ $(function () {
     // map.addUnit(wk, 11);
     // map.addUnit(p, 49);
     // map.addUnit(h, 13);
-    map.addUnit(n, 63)
+    map.addUnit(n, 63);
 
-    console.log(s.toString());
-    console.log(n.toString());
+    // console.log(s.toString());
+    // console.log(n.toString());
 
-    map.draw();
-    map.start();
+    // map.draw();
+    // map.start();
     // map.draw();
 
     // console.log(s.toString());
