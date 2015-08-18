@@ -125,7 +125,6 @@ $(function () {
         }
 
         index = currentX + currentY * 8;
-        console.log(index);
 
         return this.map[index];
     };
@@ -387,15 +386,12 @@ $(function () {
     };
 
     Unit.prototype.act = function (unitLocation) {
-        console.log(this.getName() + " turn");
+        console.log("[" + this + "] turn");
 
         var enemies = this.map.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, unitLocation);
-        
-        console.log(this);
 
         if (unitLocation.distance(target) <= this.getAttackDistance()) {
-            console.log(unitLocation.unit.state.name + " attacking " + target.unit.state.name);
             this.attack(target.getUnit());
             return;
         }
@@ -413,7 +409,9 @@ $(function () {
         }
     };
 
-    Unit.prototype.attack = function (enemy) {
+    Unit.prototype.attack = function (enemy) { 
+        console.log(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.getDamage() + "]");
+           
         enemy.setEnemy(this);
         this.attackMethod.attack(enemy);
         enemy.counterattack(this);
@@ -536,10 +534,11 @@ $(function () {
     };
     
     Rogue.prototype.takeDamage = function(dmg) {
-        if (Math.random() > 0.7) {
-            this.ability.action(this.map, this.enemy);
-            console.log(this.state.name + " evading attack with no harm");            
-            return;
+        if (this.ability instanceof Evading && Math.random() > 0.3) {
+            if (this.ability.action(this.map, this.enemy)) {
+                console.log(this.state.name + " evading attack with no harm");
+                return;
+            };
         }
         
         this.state.removeHp(dmg);
@@ -589,6 +588,31 @@ $(function () {
     }
 
     Spellcaster.prototype = Object.create(Unit.prototype);
+    
+    Spellcaster.prototype.attack = function(enemy) {
+        enemy.setEnemy(this);
+        
+        if (!this.wolf && this.mana >= this.spell.cost) {
+            this.useSpell(enemy);
+            return;
+        }
+        
+        this.attackMethod.attack(enemy);
+        enemy.counterattack(this);
+    };
+    
+    Spellcaster.prototype.counterattack = function(enemy) {
+        if (this.ensureIsAlive()) {
+            enemy.setEnemy(this);
+            
+            if (!this.wolf && this.mana >= this.spell.cost) {
+                this.useSpell(enemy);
+                return;
+            }
+            
+            this.attackMethod.counterattack(enemy);
+        }
+    };
 
     Spellcaster.prototype.getMana = function () {
         return this.mana;
@@ -611,21 +635,21 @@ $(function () {
     };
 
     Spellcaster.prototype.getAttackDistance = function () {
-        if (this.spell.getCost() >= this.mana) {
+        if (this.spell.cost >= this.mana) {
             return this.spell.getRange();
         }
         return this.attackMethod.getDistance();
     };
 
-
     Spellcaster.prototype.useSpell = function (target) {
-        this.mana -= this.spell.getCost();
+        console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
+        
+        ensureIsAlive();
+        this.mana -= this.spell.cost;
         this.spell.action(target);
     }
 
     Spellcaster.prototype.changeSpell = function (spell) {
-        ensureIsAlive();
-
         spell = this.spellbook.getSpell(spell);
     };
 
@@ -665,10 +689,10 @@ $(function () {
     Necromancer.prototype = Object.create(Battlemage.prototype);
 
     Necromancer.prototype.useSpell = function (target) {
-        var cost = this.spell.getCost();
-        var distance = this.getLocation().distance(target.getLocation());
-
-        this.mana -= cost;
+        console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);     
+        
+        target.setEnemy(this);
+        this.mana -= this.spell.cost;
         target.addObserver(this);
         this.spell.action(target);
     };
@@ -711,6 +735,12 @@ $(function () {
             console.log(this.getName() + " tried to counterattack " + enemy.getName() + " but he too far");
             return;
         }
+        
+        if (!this.wolf && this.mana >= this.spell.getCost()) {
+            this.useSpell(enemy);
+            return;
+        }
+        
         enemy.setEnemy(this);
         this.attackMethod.counterattack(enemy);
     };
@@ -745,7 +775,7 @@ $(function () {
 
     Warlock.prototype.takeDamage = function (dmg) {
         if (this.ensureIsAlive()) {
-            if (this.slave != null && Math.random() > 0.3) {
+            if (this.slave != null && Math.random() > 0.5) {
                 this.slave.takeDamage(dmg);
                 console.log(this.slave.getName() + " covers his master and takes damage");
                 return;
@@ -800,23 +830,17 @@ $(function () {
     Priest.prototype = Object.create(Supportmage.prototype);
 
     Priest.prototype.useSpell = function (target) {
-        var cost = this.spell.getCost();
-        var distance = getLocation().distance(target.getLocation());
+        console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
+        
+        this.mana -= this.spell.cost;
 
-        if (distance > spell.getRange()) {
-            console.log(this.getName() + " tried to use his spell on " + target.getName() + " but he too far");
+        if (this.spell.name == "Heal" && target.undead) {
+            target.takeMagicDamage(this.spell.effect * 2);
             return;
         }
-
-        this.mana -= cost;
-
-        if (this.spell.getName() == "Heal" && target.isUndead()) {
-            target.takeMagicDamage(this.spell.getDamage() * 2);
-            return;
-        }
-
-        this.spell.action(target);
-        console.log(this.getName() + " uses " + this.spell.getSpellName() + " on " + target.getName())
+        
+        target.enemy = this;
+        this.spell.action(target);        
     };
     
     function Ability (target) {
@@ -847,7 +871,10 @@ $(function () {
     };
 
     Vampirism.prototype.action = function () {
-        this.target.addHitPoints(parseInt(this.target.getDamage() / 4, 10));
+        var drainedHp = parseInt(this.target.getDamage() / 3, 10);
+        
+        console.log(this.target.state.name + " drained " + drainedHp + "hp");                
+        this.target.addHitPoints(drainedHp);
     };
 
     function Transformation(target) {
@@ -903,6 +930,7 @@ $(function () {
         this.name = name;
         this.cost = cost;
         this.effect = effect;
+        this.useDistance = 3;
     }
 
     Spell.prototype.getCost = function () {
@@ -919,6 +947,10 @@ $(function () {
 
     Spell.prototype.getName = function () {
         return this.name;
+    };
+    
+    Spell.prototype.getRange = function() {
+        return this.useDistance;
     };
 
     function Heal(name, cost, effect) {
@@ -1006,7 +1038,7 @@ $(function () {
     var wk = new Warlock("Warlock", 170, 15, 150);
     var p = new Priest("Priest", 160, 15, 300);
     var h = new Healer("Healer", 130, 10, 300);
-    var n = new Necromancer("Necromancer", 300, 20, 200);
+    var n = new Necromancer("Necromancer", 200, 20, 200);
 
     map.addUnit(s, 37);
     map.addUnit(r, 6);
