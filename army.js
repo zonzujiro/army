@@ -390,6 +390,10 @@ $(function () {
 
         var enemies = this.map.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, unitLocation);
+        
+        if (this.ability instanceof Transformation && Math.random() > 0.5) {
+            this.useAbility();
+        }
 
         if (unitLocation.distance(target) <= this.getAttackDistance()) {
             this.attack(target.getUnit());
@@ -600,6 +604,10 @@ $(function () {
             this.addMana(10);
         }
         
+        if (this.ability instanceof Transformation && Math.random() > 0.5) {
+            this.useAbility();
+        }
+        
         if (this.state.hp < this.state.maxHp && this.mana >= this.spellbook.getSpell("Heal").cost) {
             if (this.spell.name != "Heal") {
                 var oldSpell = this.spell.name;
@@ -673,7 +681,6 @@ $(function () {
     Spellcaster.prototype.useSpell = function (target) {
         console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
         
-        ensureIsAlive();
         this.mana -= this.spell.cost;
         this.spell.action(target);
     }
@@ -734,13 +741,51 @@ $(function () {
     };
 
     Warlock.prototype = Object.create(Battlemage.prototype);
+    
+    Warlock.prototype.act = function (unitLocation) {
+        console.log("[" + this + "] turn");
+
+        var enemies = this.map.searchAllEnemies(this);
+        var target = this.chooseNearestEnemy(enemies, unitLocation);
+        
+        if (this.mana < this.maxMana) {
+            this.addMana(10);
+        }
+        
+        if (this.slave == null && this.mana > 50) {
+            this.summon();
+        }
+        
+        if (this.ability instanceof Transformation && Math.random() > 0.5) {
+            this.useAbility();
+        }
+        
+        if (this.state.hp < this.state.maxHp && this.mana >= this.spellbook.getSpell("Heal").cost) {
+            if (this.spell.name != "Heal") {
+                var oldSpell = this.spell.name;
+                
+                this.changeSpell("Heal");
+                this.useSpell(this);
+                this.spell = this.spellbook.getSpell(oldSpell);
+            } else {
+                this.useSpell(this);
+            }
+        }
+
+        if (unitLocation.distance(target) <= this.getAttackDistance()) {
+            this.attack(target.getUnit());
+            return;
+        }
+
+        this.move(this.map.findPathToEnemy(unitLocation, target));
+    };
 
     Warlock.prototype.attack = function (enemy) {
         var distance = this.getLocation().distance(enemy.getLocation());
         enemy.setEnemy(this);
 
         if (distance == 1 && this.slave != null) {
-            slaveAttack(enemy);
+            this.slaveAttack(enemy);
             return;
         }
 
@@ -779,7 +824,7 @@ $(function () {
     };
 
     Warlock.prototype.freeSlave = function () {
-        console.log(getName() + " set his " + slave.getName() + " free");
+        console.log(this.getName() + " set his " + this.slave.getName() + " free");
 
         this.slave = null;
     };
@@ -795,7 +840,7 @@ $(function () {
 
         this.slave = new Demon("Demon", 250, 50, this, this.map);
         this.mana -= 50;
-        console.log(this.getName() + " summons his pet: " + this.slave.getName());
+        console.log(this.getName() + " summons his pet: " + this.slave);
     };
 
     Warlock.prototype.slaveAttack = function (enemy) {
@@ -805,8 +850,8 @@ $(function () {
     Warlock.prototype.takeDamage = function (dmg) {
         if (this.ensureIsAlive()) {
             if (this.slave != null && Math.random() > 0.5) {
+                console.log(this.slave.getName() + " covers his master [Damage: " + dmg + "]");
                 this.slave.takeDamage(dmg);
-                console.log(this.slave.getName() + " covers his master and takes damage");
                 return;
             }
 
@@ -825,7 +870,7 @@ $(function () {
     };
 
     Warlock.prototype.takeMagicDamage = function (dmg) {
-        takeDamage(dmg);
+        this.takeDamage(dmg);
     };
 
     function Supportmage(name, hp, dmg, mana) {
@@ -918,6 +963,8 @@ $(function () {
         this.target.setWolfState(tmp);
         this.target.changeIsWolf();
         this.target.takeDamage(hpDifference);
+        
+        console.log(this.target.state.name + " transformed");
     };
 
     function Spellbook() {
@@ -1074,7 +1121,7 @@ $(function () {
     // r.useAbility(s);
     // map.addUnit(b, 6);
     // map.addUnit(w, 8);
-    map.addUnit(v, 11);
+    map.addUnit(wk, 11);
     // map.addUnit(wz, 63);
     // map.addUnit(wk, 11);
     // map.addUnit(p, 49);
