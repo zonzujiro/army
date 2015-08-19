@@ -582,12 +582,43 @@ $(function () {
     function Spellcaster(name, hp, dmg, mana) {
         Unit.apply(this, arguments);
 
+        this.spell;
         this.mana = this.maxMana = mana;
         this.spellbook = new Spellbook();
-        this.attackMethod = new DefaultAttack(dmg);
+        this.attackMethod = new RangeAttack(dmg);
     }
 
     Spellcaster.prototype = Object.create(Unit.prototype);
+    
+    Spellcaster.prototype.act = function (unitLocation) {
+        console.log("[" + this + "] turn");
+
+        var enemies = this.map.searchAllEnemies(this);
+        var target = this.chooseNearestEnemy(enemies, unitLocation);
+        
+        if (this.mana < this.maxMana) {
+            this.addMana(10);
+        }
+        
+        if (this.state.hp < this.state.maxHp && this.mana >= this.spellbook.getSpell("Heal").cost) {
+            if (this.spell.name != "Heal") {
+                var oldSpell = this.spell.name;
+                
+                this.changeSpell("Heal");
+                this.useSpell(this);
+                this.spell = this.spellbook.getSpell(oldSpell);
+            } else {
+                this.useSpell(this);
+            }
+        }
+
+        if (unitLocation.distance(target) <= this.getAttackDistance()) {
+            this.attack(target.getUnit());
+            return;
+        }
+
+        this.move(this.map.findPathToEnemy(unitLocation, target));
+    };
     
     Spellcaster.prototype.attack = function(enemy) {
         enemy.setEnemy(this);
@@ -623,9 +654,7 @@ $(function () {
     };
 
     Spellcaster.prototype.addMana = function (value) {
-        ensureIsAlive();
-
-        var mp = mana + value;
+        var mp = this.mana + value;
 
         if (mp > this.maxMana) {
             this.mana = this.maxMana;
@@ -649,8 +678,8 @@ $(function () {
         this.spell.action(target);
     }
 
-    Spellcaster.prototype.changeSpell = function (spell) {
-        spell = this.spellbook.getSpell(spell);
+    Spellcaster.prototype.changeSpell = function (name) {
+        spell = this.spellbook.getSpell(name);
     };
 
     Spellcaster.prototype.toString = function () {
