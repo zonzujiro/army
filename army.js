@@ -3,7 +3,7 @@
 $(function () {
     function Map() {
         this.map = [];
-        this.acted = [];        
+        this.acted = [];
         this.directions = {
             "n": new Location(0, -1),
             "ne": new Location(1, -1),
@@ -14,13 +14,13 @@ $(function () {
             "w": new Location(-1, 0),
             "nw": new Location(-1, -1)
         };
-        
+
         for (var y = 0; y < 8; y++) {
             for (var x = 0; x < 8; x++) {
-                this.map.push(new Location (x, y));
+                this.map.push(new Location(x, y));
             }
         }
-        
+
         this.draw();
     }
 
@@ -36,12 +36,13 @@ $(function () {
     Map.prototype.draw = function () {
         var total = 8;
         var index = this.map.length - total;
-        var width = 8, height = 8;
+        var width = 8,
+            height = 8;
         var html = '';
-                        
+
         for (var k = 0; k < width; k++) {
             for (var z = 0; z < height; z++, index++, total++) {
-                html += '<div id="x:' + this.map[index].x + ' y:'+  this.map[index].y +' index:' + index +'" class="cell">' + this.map[index].toString() + '</div>';
+                html += '<div id="x:' + this.map[index].x + ' y:' + this.map[index].y + ' index:' + index + '" class="cell">' + this.map[index].toString() + '</div>';
             }
             index = this.map.length - total;
         }
@@ -49,31 +50,31 @@ $(function () {
         $("#map").html(html);
     };
 
-    Map.prototype.checkAreaAround = function(loc) {
+    Map.prototype.checkAreaAround = function (loc) {
         var x, y, index, checked = [];
-        
+
         function isInside(num) {
             return num >= 0 && num < 8;
         }
-        
+
         for (var value in this.directions) {
             x = loc.x + this.directions[value].x;
-            y = loc.y + this.directions[value].y;            
-            
+            y = loc.y + this.directions[value].y;
+
             if (isInside(x) && isInside(y)) {
-                index = x + y * 8;                
-                
+                index = x + y * 8;
+
                 if (this.map[index].unit == null) {
-                    checked.push(this.map[index]);                    
+                    checked.push(this.map[index]);
                 }
             }
-        }        
+        }
         return checked;
     };
 
     Map.prototype.moveToLocation = function (unit, loc) {
         var index = loc.x + loc.y * 8;
-        
+
         this.removeUnit(unit);
         this.addUnit(unit, index);
     };
@@ -106,10 +107,12 @@ $(function () {
             }
         }
     };
-    
+
     Map.prototype.findPathToEnemy = function (current, target) {
-        var currentX = current.getX(), currentY = current.getY();
-        var targetX = target.getX(), targetY = target.getY();
+        var currentX = current.getX(),
+            currentY = current.getY();
+        var targetX = target.getX(),
+            targetY = target.getY();
         var index;
 
         if (currentX < targetX) {
@@ -159,7 +162,7 @@ $(function () {
     Location.prototype.getX = function () {
         return this.x;
     };
-    
+
     Location.prototype.getY = function () {
         return this.y;
     };
@@ -221,7 +224,7 @@ $(function () {
 
     WerewolfAttack.prototype.attack = function (enemy) {
         enemy.takeDamage(this.dmg);
-        
+
         if (!enemy.isImmune()) {
             enemy.setWolfState(new State(enemy.getName() + " as Wolf", enemy.getMaxHp() * 2, enemy.getDamage() * 2));
             enemy.setName(enemy.getName() + " as Human");
@@ -235,7 +238,7 @@ $(function () {
         enemy.takeDamage(this.dmg / 2);
     };
 
-    function VampireAttack(self) {        
+    function VampireAttack(self) {
         this.self = self;
         this.dmg = self.getDamage();
         this.distance = 1;
@@ -250,6 +253,7 @@ $(function () {
             enemy.setName("Vampire " + enemy.getName());
             enemy.changeImmunity();
             enemy.changeIsUndead();
+            enemy.takeDamage = Unit.prototype.takeDamage;
         }
 
         enemy.takeDamage(this.dmg);
@@ -356,7 +360,7 @@ $(function () {
     Unit.prototype.setAttackMethod = function (newMethod) {
         this.attackMethod = newMethod;
     };
-    
+
     Unit.prototype.setEnemy = function setName(enemy) {
         this.enemy = enemy;
     };
@@ -390,7 +394,7 @@ $(function () {
 
         var enemies = this.map.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, unitLocation);
-        
+
         if (this.ability instanceof Transformation && Math.random() > 0.5) {
             this.useAbility();
         }
@@ -413,9 +417,9 @@ $(function () {
         }
     };
 
-    Unit.prototype.attack = function (enemy) { 
+    Unit.prototype.attack = function (enemy) {
         console.log(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.getDamage() + "]");
-           
+
         enemy.setEnemy(this);
         this.attackMethod.attack(enemy);
         enemy.counterattack(this);
@@ -443,6 +447,7 @@ $(function () {
             this.state.removeHp(dmg);
 
             if (!this.ensureIsAlive()) {
+                console.log(this.state.name + " died because of war");
                 this.map.removeUnit(this);
                 this.notify();
             }
@@ -461,12 +466,13 @@ $(function () {
 
     Unit.prototype.notify = function () {
         var self = this;
-        
-        console.log("After death " + this.state.name + " gives " + parseInt(self.getMaxHp() / 3) + "hp to his observers");
 
-        this.observers.forEach(function (observer) {
-            observer.addHitPoints(parseInt(self.getMaxHp() / 3));
-        });
+        if (this.observers.length > 0) {
+            console.log("After death " + this.state.name + " gives " + parseInt(this.state.maxHp / 3, 10) + "hp to his observers");
+            this.observers.forEach(function (observer) {
+                observer.addHitPoints(self.getMaxHp() / 3);
+            });
+        }
     };
 
     Unit.prototype.addObserver = function (observer) {
@@ -482,10 +488,25 @@ $(function () {
     function Soldier(name, hp, dmg) {
         Unit.apply(this, arguments);
         this.attackMethod = new DefaultAttack(dmg);
+        this.ability = new HideBehindShield(this);
         this.icon = "S";
     };
 
     Soldier.prototype = Object.create(Unit.prototype);
+
+    Soldier.prototype.takeDamage = function (dmg) {
+        if (this.ability.action(dmg)) {
+            return;
+        }
+
+        this.state.removeHp(dmg);
+
+        if (!this.ensureIsAlive()) {
+            console.log(this.state.name + " died because of war");
+            this.map.removeUnit(this);
+            this.notify();
+        }
+    }
 
     function Demon(name, hp, dmg, master, map) {
         Soldier.apply(this, arguments);
@@ -505,6 +526,7 @@ $(function () {
         this.state.removeHp(dmg);
 
         if (!this.ensureIsAlive()) {
+            console.log(this.state.name + " died because of war");
             this.master.freeSlave();
             this.notify();
         }
@@ -539,18 +561,19 @@ $(function () {
         enemy.setEnemy(this);
         enemy.takeDamage(this.getDamage());
     };
-    
-    Rogue.prototype.takeDamage = function(dmg) {
-        if (this.ability instanceof Evading && Math.random() > 0.3) {
+
+    Rogue.prototype.takeDamage = function (dmg) {
+        if (Math.random() > 0.3) {
             if (this.ability.action(this.map, this.enemy)) {
                 console.log(this.state.name + " evading attack with no harm");
                 return;
             };
         }
-        
+
         this.state.removeHp(dmg);
-        
+
         if (!this.ensureIsAlive()) {
+            console.log(this.state.name + " died because of war");
             this.map.removeUnit(this);
             this.notify();
         }
@@ -558,7 +581,7 @@ $(function () {
 
     function Vampire(name, hp, dmg) {
         Unit.apply(this, arguments);
-        this.attackMethod = new VampireAttack(this);        
+        this.attackMethod = new VampireAttack(this);
         this.setAbility(new Vampirism(this));
         this.immunity = true;
         this.undead = true;
@@ -588,7 +611,6 @@ $(function () {
 
     function Spellcaster(name, hp, dmg, mana) {
         Unit.apply(this, arguments);
-
         this.spell;
         this.mana = this.maxMana = mana;
         this.spellbook = new Spellbook();
@@ -596,25 +618,25 @@ $(function () {
     }
 
     Spellcaster.prototype = Object.create(Unit.prototype);
-    
+
     Spellcaster.prototype.act = function (unitLocation) {
         console.log("[" + this + "] turn");
 
         var enemies = this.map.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, unitLocation);
-        
+
         if (this.mana < this.maxMana) {
             this.addMana(10);
         }
-        
+
         if (this.ability instanceof Transformation && Math.random() > 0.5) {
             this.useAbility();
         }
-        
+
         if (this.state.hp < this.state.maxHp && this.mana >= this.spellbook.getSpell("Heal").cost) {
             if (this.spell.name != "Heal") {
                 var oldSpell = this.spell.name;
-                
+
                 this.changeSpell("Heal");
                 this.useSpell(this);
                 this.spell = this.spellbook.getSpell(oldSpell);
@@ -630,28 +652,28 @@ $(function () {
 
         this.move(this.map.findPathToEnemy(unitLocation, target));
     };
-    
-    Spellcaster.prototype.attack = function(enemy) {
+
+    Spellcaster.prototype.attack = function (enemy) {
         enemy.setEnemy(this);
-        
+
         if (!this.wolf && this.mana >= this.spell.cost) {
             this.useSpell(enemy);
             return;
         }
-        
+
         this.attackMethod.attack(enemy);
         enemy.counterattack(this);
     };
-    
-    Spellcaster.prototype.counterattack = function(enemy) {
+
+    Spellcaster.prototype.counterattack = function (enemy) {
         if (this.ensureIsAlive()) {
             enemy.setEnemy(this);
-            
+
             if (!this.wolf && this.mana >= this.spell.cost) {
                 this.useSpell(enemy);
                 return;
             }
-            
+
             this.attackMethod.counterattack(enemy);
         }
     };
@@ -683,7 +705,7 @@ $(function () {
 
     Spellcaster.prototype.useSpell = function (target) {
         console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
-        
+
         this.mana -= this.spell.cost;
         this.spell.action(target);
     }
@@ -703,7 +725,7 @@ $(function () {
     }
 
     Battlemage.prototype = Object.create(Spellcaster.prototype);
-    
+
     function Supportmage(name, hp, dmg, mana) {
         Spellcaster.apply(this, arguments);
         this.spellbook.addSpell(new Heal("Heal", 30, 60));
@@ -730,8 +752,8 @@ $(function () {
     Necromancer.prototype = Object.create(Battlemage.prototype);
 
     Necromancer.prototype.useSpell = function (target) {
-        console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);     
-        
+        console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
+
         target.setEnemy(this);
         this.mana -= this.spell.cost;
         target.addObserver(this);
@@ -746,29 +768,29 @@ $(function () {
     };
 
     Warlock.prototype = Object.create(Battlemage.prototype);
-    
+
     Warlock.prototype.act = function (unitLocation) {
         console.log("[" + this + "] turn");
 
         var enemies = this.map.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, unitLocation);
-        
+
         if (this.mana < this.maxMana) {
             this.addMana(10);
         }
-        
+
         if (this.slave == null && this.mana > 50) {
             this.summon();
         }
-        
+
         if (this.ability instanceof Transformation && Math.random() > 0.5) {
             this.useAbility();
         }
-        
+
         if (this.state.hp < this.state.maxHp && this.mana >= this.spellbook.getSpell("Heal").cost) {
             if (this.spell.name != "Heal") {
                 var tmp = this.spell;
-                
+
                 this.changeSpell("Heal");
                 this.useSpell(this);
                 this.spell = tmp;
@@ -814,12 +836,12 @@ $(function () {
             console.log(this.getName() + " tried to counterattack " + enemy.getName() + " but he too far");
             return;
         }
-        
+
         if (!this.wolf && this.mana >= this.spell.getCost()) {
             this.useSpell(enemy);
             return;
         }
-        
+
         enemy.setEnemy(this);
         this.attackMethod.counterattack(enemy);
     };
@@ -858,8 +880,9 @@ $(function () {
             }
 
             this.state.removeHp(dmg);
-            
+
             if (!this.ensureIsAlive()) {
+                console.log(this.state.name + " died because of war");
                 this.map.removeUnit(this);
                 this.notify();
             }
@@ -894,34 +917,47 @@ $(function () {
 
     Priest.prototype.useSpell = function (target) {
         console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
-        
+
         this.mana -= this.spell.cost;
 
         if (this.spell.name == "Heal" && target.undead) {
             target.takeMagicDamage(this.spell.effect * 2);
             return;
         }
-        
+
         target.enemy = this;
-        this.spell.action(target);        
+        this.spell.action(target);
     };
-    
-    function Ability (target) {
+
+    function Ability(target) {
         this.target = target;
     }
-    
-    function Evading (target, map) {
+
+    function HideBehindShield(target) {
         Ability.apply(this, arguments);
     }
-    
-    Evading.prototype.action = function(map, enemy) {
+
+    HideBehindShield.prototype.action = function (dmg) {
+        if (Math.random() > 0.3) {
+            console.log(this.target.state.name + " covers behind a shield and takes less damage [Damage: " + parseInt(dmg / 4, 10) + "]");
+            this.target.state.removeHp(dmg / 5);
+            return true;
+        }
+        return false;
+    }
+
+    function Evading(target, map) {
+        Ability.apply(this, arguments);
+    }
+
+    Evading.prototype.action = function (map, enemy) {
         var currentLocation = this.target.getLocation();
         var area = map.checkAreaAround(currentLocation);
-        var attackDistance = this.target.getAttackDistance();        
-        var possibleMoves = area.filter(function(emptyCell) {
+        var attackDistance = this.target.getAttackDistance();
+        var possibleMoves = area.filter(function (emptyCell) {
             return emptyCell.distance(enemy.getLocation()) <= attackDistance;
         });
-        
+
         if (possibleMoves.length > 0) {
             this.target.move(possibleMoves[Math.floor(Math.random() * possibleMoves.length)]);
             return true;
@@ -934,9 +970,9 @@ $(function () {
     };
 
     Vampirism.prototype.action = function () {
-        var drainedHp = parseInt(this.target.getDamage() / 3, 10);
-        
-        console.log(this.target.state.name + " drained " + drainedHp + "hp");                
+        var drainedHp = parseInt(this.target.getDamage() / 3);
+
+        console.log(this.target.state.name + " drained " + drainedHp + "hp");
         this.target.addHitPoints(drainedHp);
     };
 
@@ -952,7 +988,7 @@ $(function () {
         this.target.setWolfState(tmp);
         this.target.changeIsWolf();
         this.target.takeDamage(hpDifference);
-        
+
         console.log(this.target.state.name + " transformed");
     };
 
@@ -1010,8 +1046,8 @@ $(function () {
     Spell.prototype.getName = function () {
         return this.name;
     };
-    
-    Spell.prototype.getRange = function() {
+
+    Spell.prototype.getRange = function () {
         return this.useDistance;
     };
 
@@ -1067,6 +1103,8 @@ $(function () {
     };
 
     State.prototype.removeHp = function (value) {
+        value = parseInt(value, 10);
+
         if (value > this.hp) {
             this.hp = 0;
             return;
@@ -1075,7 +1113,7 @@ $(function () {
     };
 
     State.prototype.addHp = function (value) {
-        var total = this.hp + value;
+        var total = parseInt(this.hp + value, 10);
 
         if (total > this.maxHp) {
             this.hp = this.maxHp;
@@ -1102,17 +1140,16 @@ $(function () {
     var h = new Healer("Healer", 130, 10, 300);
     var n = new Necromancer("Necromancer", 200, 20, 200);
 
-    map.addUnit(s, 37);
-    map.addUnit(r, 6);
-    // r.useAbility(s);
-    // map.addUnit(b, 6);
+    map.addUnit(r, 63);
+    // map.addUnit(s, 6);
+    map.addUnit(b, 62);
     // map.addUnit(w, 8);
-    map.addUnit(wk, 11);
+    // map.addUnit(wk, 11);
     // map.addUnit(wz, 63);
     // map.addUnit(wk, 11);
     // map.addUnit(p, 49);
-    // map.addUnit(h, 13);
-    map.addUnit(n, 63);
+    map.addUnit(v, 13);
+    // map.addUnit(n, 63);
 
     // console.log(s.toString());
     // console.log(n.toString());
