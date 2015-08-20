@@ -461,6 +461,8 @@ $(function () {
 
     Unit.prototype.notify = function () {
         var self = this;
+        
+        console.log("After death " + this.state.name + " gives " + parseInt(self.getMaxHp() / 3) + "hp to his observers");
 
         this.observers.forEach(function (observer) {
             observer.addHitPoints(parseInt(self.getMaxHp() / 3));
@@ -504,6 +506,7 @@ $(function () {
 
         if (!this.ensureIsAlive()) {
             this.master.freeSlave();
+            this.notify();
         }
     };
 
@@ -686,7 +689,7 @@ $(function () {
     }
 
     Spellcaster.prototype.changeSpell = function (name) {
-        spell = this.spellbook.getSpell(name);
+        this.spell = this.spellbook.getSpell(name);
     };
 
     Spellcaster.prototype.toString = function () {
@@ -695,17 +698,19 @@ $(function () {
 
     function Battlemage(name, hp, dmg, mana) {
         Spellcaster.apply(this, arguments);
+        this.spellbook.addSpell(new Heal("Heal", 30, 30));
+        this.spellbook.addSpell(new Fireball("Fireball", 40, 50));
     }
 
     Battlemage.prototype = Object.create(Spellcaster.prototype);
+    
+    function Supportmage(name, hp, dmg, mana) {
+        Spellcaster.apply(this, arguments);
+        this.spellbook.addSpell(new Heal("Heal", 30, 60));
+        this.spellbook.addSpell(new Fireball("Fireball", 40, 25));
+    }
 
-    Battlemage.prototype.changeSpell = function (name) {
-        this.spell = this.spellbook.getSpell(name);
-
-        if (name == "Heal") {
-            this.spell.setEffect(this.spell.getEffect() / 2);
-        }
-    };
+    Supportmage.prototype = Object.create(Spellcaster.prototype);
 
     function Wizard(name, hp, dmg, mana) {
         Battlemage.apply(this, arguments);
@@ -762,11 +767,11 @@ $(function () {
         
         if (this.state.hp < this.state.maxHp && this.mana >= this.spellbook.getSpell("Heal").cost) {
             if (this.spell.name != "Heal") {
-                var oldSpell = this.spell.name;
+                var tmp = this.spell;
                 
                 this.changeSpell("Heal");
                 this.useSpell(this);
-                this.spell = this.spellbook.getSpell(oldSpell);
+                this.spell = tmp;
             } else {
                 this.useSpell(this);
             }
@@ -834,16 +839,13 @@ $(function () {
     };
 
     Warlock.prototype.summon = function () {
-        if (this.slave != null) {
-            freeSlave();
-        }
-
         this.slave = new Demon("Demon", 250, 50, this, this.map);
         this.mana -= 50;
         console.log(this.getName() + " summons his pet: " + this.slave);
     };
 
     Warlock.prototype.slaveAttack = function (enemy) {
+        console.log(this.slave.state.name + " attacking " + enemy.state.name + " [Damage: " + this.slave.attackMethod.dmg + "]");
         this.slave.attack(enemy);
     };
 
@@ -856,6 +858,11 @@ $(function () {
             }
 
             this.state.removeHp(dmg);
+            
+            if (!this.ensureIsAlive()) {
+                this.map.removeUnit(this);
+                this.notify();
+            }
         }
     };
 
@@ -867,24 +874,6 @@ $(function () {
         }
 
         return out;
-    };
-
-    Warlock.prototype.takeMagicDamage = function (dmg) {
-        this.takeDamage(dmg);
-    };
-
-    function Supportmage(name, hp, dmg, mana) {
-        Spellcaster.apply(this, arguments);
-    }
-
-    Supportmage.prototype = Object.create(Spellcaster.prototype);
-
-    Spellcaster.prototype.changeSpell = function (name) {
-        this.spell = spellbook.getSpell(name);
-
-        if (name == "Fireball") {
-            this.spell.setEffect(this.spell.getEffect() / 2);
-        }
     };
 
     function Healer(name, hp, dmg, mana) {
@@ -969,9 +958,6 @@ $(function () {
 
     function Spellbook() {
         this.spellbook = [];
-
-        this.spellbook.push(new Heal("Heal", 30, 60));
-        this.spellbook.push(new Fireball("Fireball", 40, 50));
     };
 
     Spellbook.prototype.getSpell = function (name) {
