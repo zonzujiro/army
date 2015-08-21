@@ -4,20 +4,30 @@
     -ms-user-select: none;
 }
 
+h1 {
+    font-size: 1.5em;
+    /*font-weight: lighter;*/
+}
+
+b {
+    /*font-weight: lighter;*/
+}
+
 #map {
-    width: 620px;
-    margin-left: auto;
+    width: 540px;
     margin-right: auto;
+    float: left;
+    margin-top: 45px;
 }
 
 .cell {
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
     border: 1px solid black;
-    margin: 7px;
+    margin: 5px;
     float: left;
     cursor: pointer;
-    font-size: 32px;
+    font-size: 30px;
     text-align: center;
     box-sizing: border-box;
     line-height: 1.7;
@@ -28,7 +38,68 @@
 }
 
 #main {
-    width: 710px;
+    width: 1340px;
     margin-left: auto;
     margin-right: auto;
+}
+
+#list {
+    width: 160px;
+    float: left;
+    margin-left: 10px;
+    border-left: 1.5px solid black;    
+}
+
+#list p {
+    font: 20pt Calibri;
+    padding-left: 10px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+#list p:hover {
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    transition-duration: 0.5s;
+}
+
+#info {
+    width: 540px;
+    float: left;
+    font: 18pt Calibri;
+    padding-left: 60px;
+    /*margin-top: 20px;*/
+}
+
+ul {
+    margin: 0;
+    padding: 4px;
+    cursor: pointer;
+}
+
+ul li {
+    display: inline;
+    /*margin-left: 5px;*/
+    font: 25pt Calibri;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+ul li:hover {
+    color: white;
+    background-color: black;
+    transition-duration: 0.5s;
+}
+
+#start {
+    color: red;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+#start:hover {
+    color: white;
+    background-color: red;
+    transition-duration: 0.5s;
 }
