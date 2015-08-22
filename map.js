@@ -28,6 +28,7 @@ Map.prototype.addUnit = function (unit, index) {
 
     this.map[index].setUnit(unit);
     unit.setMap(this);
+    this.draw();
 };
 
 Map.prototype.draw = function () {
@@ -39,7 +40,8 @@ Map.prototype.draw = function () {
 
     for (var k = 0; k < width; k++) {
         for (var z = 0; z < height; z++, index++, total++) {
-            html += '<div id="x:' + this.map[index].x + ' y:' + this.map[index].y + ' index:' + index + '" class="cell">' + this.map[index].toString() + '</div>';
+            // html += '<div id="x:' + this.map[index].x + ' y:' + this.map[index].y + ' index:' + index + '" class="cell">' + this.map[index].toString() + '</div>';
+             html += '<div id="' + index + '" class="cell">' + this.map[index].toString() + '</div>';
         }
         index = this.map.length - total;
     }
@@ -95,6 +97,7 @@ Map.prototype.searchAllEnemies = function (self) {
 
 Map.prototype.removeUnit = function (unit) {
     this.searchUnitLocation(unit).setUnit(null);
+    this.draw();
 };
 
 Map.prototype.searchUnitLocation = function (unit) {

@@ -31,6 +31,7 @@ Unit.prototype.getCurrentHp = function () {
 };
 
 Unit.prototype.getMaxHp = function () {
+    // console.log(this);
     return this.state.getMaxHp();
 };
 

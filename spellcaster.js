@@ -220,6 +220,7 @@ Warlock.prototype.counterattack = function (enemy) {
     }
 
     var distance = this.getLocation().distance(enemy.getLocation());
+    console.log(distance);
 
     if (distance > this.attackMethod.getDistance()) {
         console.log(this.getName() + " tried to counterattack " + enemy.getName() + " but he too far");
