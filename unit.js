@@ -31,7 +31,6 @@ Unit.prototype.getCurrentHp = function () {
 };
 
 Unit.prototype.getMaxHp = function () {
-    // console.log(this);
     return this.state.getMaxHp();
 };
 
@@ -49,6 +48,10 @@ Unit.prototype.getLocation = function () {
 
 Unit.prototype.getAttackDistance = function () {
     return this.attackMethod.getDistance();
+};
+
+Unit.prototype.getAttackMethod = function () {
+    return this.attackMethod;
 };
 
 Unit.prototype.changeIsWolf = function () {

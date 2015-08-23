@@ -1,6 +1,4 @@
-function UserInterface(map) {	
-	this.map = map;
-	
+function UserInterface() {		
 	this.units = {
         soldier: function () { return new Soldier("Soldier", 200, 20) },
         berserker: function () { return new Berserker("Berserker", 200, 20) },
