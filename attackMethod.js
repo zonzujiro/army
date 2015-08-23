@@ -60,9 +60,6 @@ function VampireAttack(self) {
 VampireAttack.prototype = Object.create(AttackMethod.prototype);
 
 VampireAttack.prototype.attack = function (enemy) {    
-    enemy.takeDamage(this.dmg);
-    this.self.ability.action();
-    
     if (!enemy.immunity) {
         enemy.setName("Vampire " + enemy.getName());
         enemy.ability = new Vampirism(enemy);
@@ -71,6 +68,9 @@ VampireAttack.prototype.attack = function (enemy) {
         enemy.undead = true;
         enemy.takeDamage = Unit.prototype.takeDamage;
     }
+
+    enemy.takeDamage(this.dmg);
+    this.self.ability.action();
 };
 
 VampireAttack.prototype.counterattack = function (enemy) {

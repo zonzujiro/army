@@ -18,6 +18,10 @@ Spellcaster.prototype.act = function (unitLocation) {
         this.addMana(10);
     }
 
+    if (this.ability instanceof Transformation && Math.random() > 0.5) {
+        this.ability.action();
+    }
+
     if (this.state.hp < this.state.maxHp && this.mana >= this.spellbook.getSpell("Heal").cost) {
         if (this.spell.name != "Heal") {
             var oldSpell = this.spell.name;
@@ -81,8 +85,8 @@ Spellcaster.prototype.addMana = function (value) {
     this.mana = mp;
 };
 
-Spellcaster.prototype.getAttackDistance = function () {    
-    if (this.spell.cost <= this.mana) {
+Spellcaster.prototype.getAttackDistance = function () {
+    if (this.spell.cost >= this.mana) {
         return this.spell.getRange();
     }
     return this.attackMethod.getDistance();
@@ -168,6 +172,10 @@ Warlock.prototype.act = function (unitLocation) {
         this.summon();
     }
 
+    if (this.ability instanceof Transformation && Math.random() > 0.5) {
+        this.ability.action();
+    }
+
     if (this.state.hp < this.state.maxHp && this.mana >= this.spellbook.getSpell("Heal").cost) {
         if (this.spell.name != "Heal") {
             var tmp = this.spell;
@@ -201,29 +209,31 @@ Warlock.prototype.attack = function (enemy) {
         this.useSpell(enemy);
         return;
     }
-    
-    console.log(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.getDamage() + "]");
+
     this.attackMethod.attack(enemy);
     enemy.counterattack(this);
 };
 
 Warlock.prototype.counterattack = function (enemy) {
-    if (this.ensureIsAlive()) {
-        var distance = this.getLocation().distance(enemy.getLocation());
-
-        if (distance > this.getAttackDistance()) {
-            console.log(this.getName() + " tried to counterattack " + enemy.getName() + " but he too far");
-            return;
-        }
-
-        if (!this.wolf && this.mana >= this.spell.getCost()) {
-            this.useSpell(enemy);
-            return;
-        }
-
-        enemy.enemy = this;
-        this.attackMethod.counterattack(enemy);
+    if (!this.ensureIsAlive()) {
+        return;
     }
+
+    var distance = this.getLocation().distance(enemy.getLocation());
+    console.log(distance);
+
+    if (distance > this.attackMethod.getDistance()) {
+        console.log(this.getName() + " tried to counterattack " + enemy.getName() + " but he too far");
+        return;
+    }
+
+    if (!this.wolf && this.mana >= this.spell.getCost()) {
+        this.useSpell(enemy);
+        return;
+    }
+
+    enemy.enemy = this;
+    this.attackMethod.counterattack(enemy);
 };
 
 Warlock.prototype.demon = function () {
