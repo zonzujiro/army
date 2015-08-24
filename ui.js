@@ -42,6 +42,7 @@ function UserInterface() {
 	this.unitsOutput = "";
 	this.abilitiesOutput = "";
 	this.spellsOutput = "";
+	this.output = "";
 	
 	for (var value in this.units) {
 		this.unitsOutput += '<p id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</p>';
@@ -55,3 +56,11 @@ function UserInterface() {
 		this.spellsOutput += '<p id="'+ value + '" class="spell">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</p>';
 	}
 }
+
+UserInterface.prototype.print = function(text) {
+	var string = '<p id="history">' + text + '</p>';
+	var counter = 0;
+	
+	this.output += counter + ": " + string;
+	counter += 1;
+};

@@ -1,4 +1,5 @@
 function Map() {
+    this.numberOfUnits = 0;
     this.map = [];
     this.acted = [];
     this.directions = {
@@ -28,6 +29,7 @@ Map.prototype.addUnit = function (unit, index) {
 
     this.map[index].setUnit(unit);
     unit.setMap(this);
+    this.numberOfUnits += 1;
     this.draw();
 };
 
@@ -78,16 +80,16 @@ Map.prototype.moveToLocation = function (unit, loc) {
     this.addUnit(unit, index);
 };
 
-Map.prototype.calculateUnits = function () {
-    var counter = 0;
+// Map.prototype.calculateUnits = function () {
+//     var counter = 0;
 
-    for (var i = 0; i < this.map.length; i++) {
-        if (this.map[i].getUnit() != null) {
-            counter += 1;
-        }
-    }
-    return counter;
-};
+//     for (var i = 0; i < this.map.length; i++) {
+//         if (this.map[i].getUnit() != null) {
+//             counter += 1;
+//         }
+//     }
+//     return counter;
+// };
 
 Map.prototype.searchAllEnemies = function (self) {
     return this.map.filter(function (loc) {
@@ -97,6 +99,7 @@ Map.prototype.searchAllEnemies = function (self) {
 
 Map.prototype.removeUnit = function (unit) {
     this.searchUnitLocation(unit).setUnit(null);
+    this.numberOfUnits -= 1;
     this.draw();
 };
 
@@ -136,7 +139,13 @@ Map.prototype.start = function () {
     for (var i = 0; i < this.map.length; i++) {
         var unit = this.map[i].getUnit();
 
-        if (this.calculateUnits() > 1 && unit != null && this.acted.indexOf(unit) == -1) {
+        // if (this.calculateUnits() > 1 && unit != null && this.acted.indexOf(unit) == -1) {
+        //     unit.act(this.map[i]);
+        //     this.acted.push(unit);
+        //     this.draw();
+        // }
+        
+        if (this.numberOfUnits > 1 && unit != null && this.acted.indexOf(unit) == -1) {
             unit.act(this.map[i]);
             this.acted.push(unit);
             this.draw();
@@ -145,7 +154,7 @@ Map.prototype.start = function () {
 
     this.acted = [];
 
-    if (this.calculateUnits() > 1) {
+    if (this.numberOfUnits > 1) {
         setTimeout(this.start.bind(this), 666);
         console.log("--------------------------------");
     } else {

@@ -82,7 +82,7 @@ Spellcaster.prototype.addMana = function (value) {
 };
 
 Spellcaster.prototype.getAttackDistance = function () {    
-    if (this.spell.cost <= this.mana) {
+    if (!this.wolf && this.spell.cost <= this.mana) {
         return this.spell.getRange();
     }
     return this.attackMethod.getDistance();
@@ -243,6 +243,7 @@ Warlock.prototype.setSlave = function (demon) {
 Warlock.prototype.summon = function () {
     this.slave = new Demon("Demon", 250, 50, this, this.map);
     this.mana -= 50;
+    this.slave.userInterface = this.userInterface;
     console.log(this.getName() + " summons his pet: " + this.slave);
 };
 

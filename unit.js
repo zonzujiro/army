@@ -1,8 +1,8 @@
 function Unit(name, hp, dmg) {
     this.state = new State(name, hp, dmg);
+    this.wolfState = null;
     this.ability = null;
     this.actionPoints = 4;
-    this.wolfState = null;
 
     this.immunity = false;
     this.wolf = false;
@@ -11,7 +11,7 @@ function Unit(name, hp, dmg) {
     this.icon;
     this.map;
     this.enemy;
-    this.checkedMoves = [];
+    this.userInterface;
     this.observers = [];
 };
 
@@ -70,12 +70,9 @@ Unit.prototype.setMap = function (map) {
     this.map = map;
 };
 
-Unit.prototype.addMove = function (value) {
-    this.checkedMoves.push(value);
-};
-
 Unit.prototype.act = function (unitLocation) {
-    console.log("[" + this + "] turn");
+    console.log(this.userInterface);
+    this.userInterface.print("[" + this + "] turn");
 
     var enemies = this.map.searchAllEnemies(this);
     var target = this.chooseNearestEnemy(enemies, unitLocation);
@@ -99,7 +96,8 @@ Unit.prototype.addHitPoints = function (hp) {
 };
 
 Unit.prototype.attack = function (enemy) {
-    console.log(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.getDamage() + "]");
+    // console.log(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.getDamage() + "]");
+    this.userInterface.print(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.getDamage() + "]");
 
     enemy.enemy = this;
     this.attackMethod.attack(enemy);
@@ -110,7 +108,8 @@ Unit.prototype.counterattack = function (enemy) {
     if (!this.ensureIsAlive()) {
         return;
     }
-    console.log(this.state.name + " counterattacking " + enemy.state.name + " [dmg: " + this.getDamage() / 2 + "]");
+    this.userInterface.print(this.state.name + " counterattacking " + enemy.state.name + " [dmg: " + this.getDamage() / 2 + "]");
+    // console.log(this.state.name + " counterattacking " + enemy.state.name + " [dmg: " + this.getDamage() / 2 + "]");
     enemy.enemy = this;
     this.attackMethod.counterattack(enemy);
 };
@@ -128,7 +127,8 @@ Unit.prototype.takeDamage = function (dmg) {
         this.state.removeHp(dmg);
 
         if (!this.ensureIsAlive()) {
-            console.log(this.state.name + " died because of war");
+            this.userInterface.print(this.state.name + " died because of war");
+            // console.log(this.state.name + " died because of war");
             this.map.removeUnit(this);
             this.notify();
         }
@@ -143,7 +143,8 @@ Unit.prototype.notify = function () {
     var self = this;
 
     if (this.observers.length > 0) {
-        console.log("After death " + this.state.name + " gives " + parseInt(this.state.maxHp / 3, 10) + "hp to his observers");
+        this.userInterface.print(this.state.name + " gives " + parseInt(this.state.maxHp / 3, 10) + "hp to his observers");
+        // console.log("After death " + this.state.name + " gives " + parseInt(this.state.maxHp / 3, 10) + "hp to his observers");
         this.observers.forEach(function (observer) {
             observer.addHitPoints(self.getMaxHp() / 3);
         });
@@ -177,7 +178,8 @@ Soldier.prototype.takeDamage = function (dmg) {
     this.state.removeHp(dmg);
 
     if (!this.ensureIsAlive()) {
-        console.log(this.state.name + " died because of war");
+        // console.log(this.state.name + " died because of war");
+        this.userInterface.print(this.state.name + " died because of war");
         this.map.removeUnit(this);
         this.notify();
     }
@@ -201,7 +203,8 @@ Demon.prototype.takeDamage = function (dmg) {
     this.state.removeHp(dmg);
 
     if (!this.ensureIsAlive()) {
-        console.log(this.state.name + " died because of war");
+        // console.log(this.state.name + " died because of war");
+        this.userInterface.print(this.state.name + " died because of war");
         this.master.freeSlave();
         this.notify();
     }
@@ -216,7 +219,8 @@ function Berserker(name, hp, dmg) {
 Berserker.prototype = Object.create(Unit.prototype);
 
 Berserker.prototype.takeMagicDamage = function (dmg) {
-    return "Berserker invulnerable to magic";
+    // return "Berserker invulnerable to magic";
+    this.userInterface.print("Berserker invulnerable to magic");
 };
 
 function Rogue(name, hp, dmg) {
@@ -236,7 +240,8 @@ Rogue.prototype.attack = function (enemy) {
 Rogue.prototype.takeDamage = function (dmg) {
     if (Math.random() > 0.3) {
         if (this.ability.action(this.map, this.enemy)) {
-            console.log(this.state.name + " evading attack with no harm");
+            this.userInterface.print(this.state.name + " evading attack with no harm");
+            // console.log(this.state.name + " evading attack with no harm");
             return;
         };
     }
@@ -244,7 +249,8 @@ Rogue.prototype.takeDamage = function (dmg) {
     this.state.removeHp(dmg);
 
     if (!this.ensureIsAlive()) {
-        console.log(this.state.name + " died because of war");
+        // console.log(this.state.name + " died because of war");
+        this.userInterface.print(this.state.name + " died because of war");
         this.map.removeUnit(this);
         this.notify();
     }
@@ -274,7 +280,8 @@ function Werewolf(name, hp, dmg) {
 Werewolf.prototype = Object.create(Unit.prototype);
 
 Werewolf.prototype.act = function (unitLocation) {
-    console.log("[" + this + "] turn");
+    // console.log("[" + this + "] turn");
+    this.userInterface.print("[" + this + "] turn");
 
     var enemies = this.map.searchAllEnemies(this);
     var target = this.chooseNearestEnemy(enemies, unitLocation);
