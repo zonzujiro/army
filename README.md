@@ -1,7 +1,5 @@
 # armyJS
 
-A simple game for two players.
-
 Each player can choose units and place them on field. 
 After that, units will automatically move and attack each other.
 
