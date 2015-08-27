@@ -2,16 +2,16 @@ function UserInterface() {
 	this.counter = 1;
 	
 	this.units = {
-        soldier: function () { return new Soldier("Soldier", 200, 20) },
-        berserker: function () { return new Berserker("Berserker", 200, 20) },
-        rogue: function () { return new Rogue("Rogue", 175, 30) },
-        werewolf: function () { return new Werewolf("Werewolf", 150, 15) },
-        vampire: function () { return new Vampire("Vampire", 200, 25) },
-        wizard: function () { return new Wizard("Wizard", 150, 10, 200) },
-        warlock: function() { return new Warlock("Warlock", 170, 15, 150) }, 
-        priest: function () { return new Priest("Priest", 160, 15, 300) },
-        healer: function () { return new Healer("Healer", 130, 10, 300) },
-        necromancer: function () { return new Necromancer("Necromancer", 200, 20, 200) }
+	        soldier: function () { return new Soldier("Soldier", 200, 20) },
+	        berserker: function () { return new Berserker("Berserker", 200, 20) },
+	        rogue: function () { return new Rogue("Rogue", 175, 30) },
+	        werewolf: function () { return new Werewolf("Werewolf", 150, 15) },
+	        vampire: function () { return new Vampire("Vampire", 200, 25) },
+	        wizard: function () { return new Wizard("Wizard", 150, 10, 200) },
+	        warlock: function() { return new Warlock("Warlock", 170, 15, 150) }, 
+	        priest: function () { return new Priest("Priest", 160, 15, 300) },
+	        healer: function () { return new Healer("Healer", 130, 10, 300) },
+	        necromancer: function () { return new Necromancer("Necromancer", 200, 20, 200) }
     }    
 	
 	this.bio = {
