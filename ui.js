@@ -61,8 +61,8 @@ function UserInterface() {
 
 UserInterface.prototype.print = function(text) {
 	var string = '<p id="string"># ' + this.counter + " | " + text + '</p>';
-	this.counter += 1;
 	
+	this.counter += 1;
 	this.output = string + this.output;
 	$("#info").html(this.output);
 };
