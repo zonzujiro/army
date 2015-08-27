@@ -66,6 +66,7 @@ Transformation.prototype.action = function () {
     this.target.wolfState = tmp;
     this.target.changeIsWolf();
     this.target.state.removeHp(hpDifference);
+    this.target.ensureIsAlive();
 
     this.target.userInterface.print(this.target.state.name + " transformed");
     console.log(this.target.state.name + " transformed");
