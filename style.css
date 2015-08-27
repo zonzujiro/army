@@ -19,6 +19,14 @@ b {
     margin-top: 45px;
 }
 
+#battleInfo {
+    width: 540px;
+    height: 500px;
+    overflow: auto;
+    margin-right: auto;
+    float: left;
+}
+
 .cell {
     width: 55px;
     height: 55px;
@@ -42,34 +50,43 @@ b {
     margin-right: auto;
 }
 
+#screen {
+    width: 800px;
+}
+
 #list {
     width: 160px;
+    padding-left: 0px;
     float: left;
     margin-left: 10px;
-    border-left: 1.5px solid black;    
+    border-left: 1.5px solid black;
+    list-style-type: none;
+    /*display: block;   */
 }
 
-#list p {
+#list li {
     font: 20pt Calibri;
-    padding-left: 10px;
     margin-top: 12px;
     margin-bottom: 12px;
+    padding-left: 5px;
 }
 
-#list p:hover {
+#list li:hover {
     color: white;
     background-color: black;
     cursor: pointer;
     transition-duration: 0.5s;
 }
 
-#history {
+#string {
     font: 13pt Arial;    
     /*line-height: 1;*/
     padding: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
-#history:hover {
+#string:hover {
     background-color: lightgrey;
     cursor: pointer;
 }
@@ -84,13 +101,13 @@ b {
     /*margin-top: 20px;*/
 }
 
-ul {
+#menu {
     margin: 0;
     padding: 4px;
     cursor: pointer;
 }
 
-ul li {
+#menu li {
     display: inline;
     /*margin-left: 5px;*/
     font: 25pt Calibri;
@@ -98,7 +115,7 @@ ul li {
     padding-right: 5px;
 }
 
-ul li:hover {
+#menu li:hover {
     color: white;
     background-color: black;
     transition-duration: 0.5s;

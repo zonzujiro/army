@@ -6,13 +6,13 @@ $(function () {
     var addedUnits = [];
     
     var warlock = ui.units.warlock();
-    var vampire = ui.units.vampire(); 
+    var soldier = ui.units.soldier(); 
     
     addedUnits.push(warlock);
-    addedUnits.push(vampire);
+    addedUnits.push(soldier);
     
     map.addUnit(warlock, 54);  
-    map.addUnit(vampire, 53);   
+    map.addUnit(soldier, 53);   
     // map.addUnit(ui.units.warlock(), 11);  
     // map.addUnit(ui.units.vampire(), 13);    
     
@@ -58,8 +58,6 @@ $(function () {
     });
      
     $("body").on("click", "#start", function() {
-        console.log(addedUnits);
-        
         addedUnits.forEach(function(unit) {
             if (addedUnits.indexOf(unit) != -1) {
                 unit.userInterface = ui;

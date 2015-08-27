@@ -1,4 +1,6 @@
-function UserInterface() {		
+function UserInterface() {
+	this.counter = 1;
+	
 	this.units = {
         soldier: function () { return new Soldier("Soldier", 200, 20) },
         berserker: function () { return new Berserker("Berserker", 200, 20) },
@@ -45,22 +47,22 @@ function UserInterface() {
 	this.output = "";
 	
 	for (var value in this.units) {
-		this.unitsOutput += '<p id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</p>';
+		this.unitsOutput += '<li id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
 	}
 
 	for (var value in this.abilities) {
-		this.abilitiesOutput += '<p id="'+ value + '" class="ability">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</p>';
+		this.abilitiesOutput += '<li id="'+ value + '" class="ability">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
 	}
 
 	for (var value in this.spells) {
-		this.spellsOutput += '<p id="'+ value + '" class="spell">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</p>';
+		this.spellsOutput += '<li id="'+ value + '" class="spell">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
 	}
 }
 
 UserInterface.prototype.print = function(text) {
-	var string = '<p id="history">' + text + '</p>';
-	var counter = 0;
+	var string = '<p id="string"># ' + this.counter + " | " + text + '</p>';
+	this.counter += 1;
 	
-	this.output += counter + ": " + string;
-	counter += 1;
+	this.output = string + this.output;
+	$("#info").html(this.output);
 };

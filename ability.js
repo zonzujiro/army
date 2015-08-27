@@ -16,6 +16,7 @@ function HideBehindShield(target) {
 
 HideBehindShield.prototype.action = function (dmg) {
     if (Math.random() > 0.3) {
+        this.target.userInterface.print(this.target.state.name + " covers behind a shield and takes less damage [Damage: " + parseInt(dmg / 4, 10) + "]");
         console.log(this.target.state.name + " covers behind a shield and takes less damage [Damage: " + parseInt(dmg / 4, 10) + "]");
         this.target.state.removeHp(dmg / 5);
         return true;
@@ -66,5 +67,6 @@ Transformation.prototype.action = function () {
     this.target.changeIsWolf();
     this.target.takeDamage(hpDifference);
 
+    this.target.userInterface.print(this.target.state.name + " transformed");
     console.log(this.target.state.name + " transformed");
 };

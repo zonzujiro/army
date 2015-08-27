@@ -71,7 +71,6 @@ Unit.prototype.setMap = function (map) {
 };
 
 Unit.prototype.act = function (unitLocation) {
-    console.log(this.userInterface);
     this.userInterface.print("[" + this + "] turn");
 
     var enemies = this.map.searchAllEnemies(this);
@@ -171,6 +170,8 @@ function Soldier(name, hp, dmg) {
 Soldier.prototype = Object.create(Unit.prototype);
 
 Soldier.prototype.takeDamage = function (dmg) {
+    console.log(this + " takeDamage");
+    
     if (this.ability.action(dmg)) {
         return;
     }
