@@ -12,7 +12,7 @@ function UserInterface() {
 	        priest: function () { return new Priest("Priest", 160, 15, 300) },
 	        healer: function () { return new Healer("Healer", 130, 10, 300) },
 	        necromancer: function () { return new Necromancer("Necromancer", 200, 20, 200) }
-    }    
+    } 
 	
 	this.bio = {
 		soldier: "<h1>S - Soldier</h1><p>Simple close combat unit. Can use shield.</p><p><b>Health:</b> 200 | <b>Damage:</b> 20 | <b>Icon on map:</b> S </p><p><i>Note: soldier will rise shield with 70% chance. If shield raised up - incoming damage reduced to 1/4 from the original.</i></p>",
@@ -41,15 +41,12 @@ function UserInterface() {
 		healing: "<h1>Healing</h1><p>Healing... heals.</p><p><b>Effect:</b> 60 | <b>Mana cost:</b> 30</p>"
 	};
 	
+	this.addUnitMenu = "<ul id ='addUnitMenu'>";
 	this.unitsOutput = "";
 	this.abilitiesOutput = "";
 	this.spellsOutput = "";
 	this.output = "";
 	
-	for (var value in this.units) {
-		this.unitsOutput += '<li id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
-	}
-
 	for (var value in this.abilities) {
 		this.abilitiesOutput += '<li id="'+ value + '" class="ability">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
 	}
@@ -57,6 +54,13 @@ function UserInterface() {
 	for (var value in this.spells) {
 		this.spellsOutput += '<li id="'+ value + '" class="spell">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
 	}
+	
+	for (var value in this.units) {
+		this.unitsOutput += '<li id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
+		this.addUnitMenu += '<li id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + '</li>';
+	}	
+	
+	this.addUnitMenu += "</ul>";
 }
 
 UserInterface.prototype.print = function(text) {
@@ -65,4 +69,8 @@ UserInterface.prototype.print = function(text) {
 	this.counter += 1;
 	this.output = string + this.output;
 	$("#info").html(this.output);
+};
+
+UserInterface.prototype.drawAddUnitMenu = function() {
+	// body...
 };

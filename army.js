@@ -48,8 +48,21 @@ $(function () {
         $(".cell.active").removeClass("active");
     });
     
-     $("body").on("click", ".cell", function() {
+     $("body").on("click", ".cell", function(clicked) {
         $(".cell.active").removeClass("active");
+        // ui.drawAddUnitMenu();
+        
+        if ($("#addUnitMenu").is(":hidden")) {
+            console.log("worked");
+            $("#addUnitMenu").slideDown("slow");
+            $("#addUnitMenu").html(ui.addUnitMenu);
+        } else {
+            $("#addUnitMenu").hide();
+        }
+    
+        
+        // alert(clicked.pageX +', '+ clicked.pageY);
+        
         $(this).addClass("active");
     });
      

@@ -19,6 +19,17 @@ b {
     margin-top: 45px;
 }
 
+#addUnitMenu {
+    z-index: 1;
+    width: 100px;
+    height: 100px;
+    display:none;
+}
+
+#addUnitMenu li {
+    display: inline;    
+}
+
 #battleInfo {
     width: 540px;
     height: 500px;
