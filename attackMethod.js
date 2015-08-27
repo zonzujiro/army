@@ -38,8 +38,8 @@ WerewolfAttack.prototype.attack = function (enemy) {
     enemy.takeDamage(this.dmg);
 
     if (!enemy.immunity) {
-        enemy.setName(enemy.getName() + " as Human");
         enemy.wolfState = new State(enemy.getName() + " as Wolf", enemy.getMaxHp() * 2, enemy.getDamage() * 2);
+        enemy.setName(enemy.getName() + " as Human");
         enemy.ability = new Transformation(enemy);
         enemy.attackMethod = new WerewolfAttack(enemy.getDamage());
         enemy.immunity = true;
