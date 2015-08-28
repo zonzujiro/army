@@ -9,12 +9,11 @@ function Spellcaster(name, hp, dmg, mana) {
 Spellcaster.prototype = Object.create(Unit.prototype);
 
 Spellcaster.prototype.act = function (unitLocation) {
-    this.userInterface.print("[" + this + "] turn");
-    console.log("[" + this + "] turn");
-
     var enemies = this.map.searchAllEnemies(this);
     var target = this.chooseNearestEnemy(enemies, unitLocation);
 
+    this.userInterface.print("[" + this + "] turn");
+    
     if (this.mana < this.maxMana) {
         this.addMana(10);
     }
@@ -91,8 +90,6 @@ Spellcaster.prototype.getAttackDistance = function () {
 
 Spellcaster.prototype.useSpell = function (target) {
     this.userInterface.print(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
-    console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
-
     this.mana -= this.spell.cost;
     this.spell.action(target);
 }
@@ -140,8 +137,6 @@ Necromancer.prototype = Object.create(Battlemage.prototype);
 
 Necromancer.prototype.useSpell = function (target) {
     this.userInterface.print(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
-    console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
-
     target.enemy = this;
     this.mana -= this.spell.cost;
     target.addObserver(this);
@@ -158,11 +153,10 @@ function Warlock(name, hp, dmg, mana) {
 Warlock.prototype = Object.create(Battlemage.prototype);
 
 Warlock.prototype.act = function (unitLocation) {
-    this.userInterface.print("[" + this + "] turn");
-    console.log("[" + this + "] turn");
-
     var enemies = this.map.searchAllEnemies(this);
     var target = this.chooseNearestEnemy(enemies, unitLocation);
+
+    this.userInterface.print("[" + this + "] turn");
 
     if (this.mana < this.maxMana) {
         this.addMana(10);
@@ -207,7 +201,6 @@ Warlock.prototype.attack = function (enemy) {
     }
     
     this.userInterface.print(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.getDamage() + "]");
-    console.log(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.getDamage() + "]");
     this.attackMethod.attack(enemy);
     enemy.counterattack(this);
 };
@@ -218,7 +211,6 @@ Warlock.prototype.counterattack = function (enemy) {
 
         if (distance > this.getAttackDistance()) {
             this.userInterface.print(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.getDamage() + "]");
-            console.log(this.getName() + " tried to counterattack " + enemy.getName() + " but he too far");
             return;
         }
 
@@ -238,8 +230,6 @@ Warlock.prototype.demon = function () {
 
 Warlock.prototype.freeSlave = function () {
     this.userInterface.print(this.getName() + " set his " + this.slave.getName() + " free");
-    console.log(this.getName() + " set his " + this.slave.getName() + " free");
-
     this.slave = null;
 };
 
@@ -252,12 +242,10 @@ Warlock.prototype.summon = function () {
     this.mana -= 50;
     this.slave.userInterface = this.userInterface;
     this.userInterface.print(this.getName() + " summons his pet: " + this.slave);
-    console.log(this.getName() + " summons his pet: " + this.slave);
 };
 
 Warlock.prototype.slaveAttack = function (enemy) {
     this.userInterface.print(this.slave.state.name + " attacking " + enemy.state.name + " [Damage: " + this.slave.attackMethod.dmg + "]");
-    console.log(this.slave.state.name + " attacking " + enemy.state.name + " [Damage: " + this.slave.attackMethod.dmg + "]");
     this.slave.attack(enemy);
 };
 
@@ -265,7 +253,6 @@ Warlock.prototype.takeDamage = function (dmg) {
     if (this.ensureIsAlive()) {
         if (this.slave != null && Math.random() > 0.5) {
             this.userInterface.print(this.slave.getName() + " covers his master [Damage: " + dmg + "]");
-            console.log(this.slave.getName() + " covers his master [Damage: " + dmg + "]");
             this.slave.takeDamage(dmg);
             return;
         }
@@ -274,7 +261,6 @@ Warlock.prototype.takeDamage = function (dmg) {
 
         if (!this.ensureIsAlive()) {
             this.userInterface.print(this.state.name + " died because of war");
-            console.log(this.state.name + " died because of war");
             this.map.removeUnit(this);
             this.notify();
         }
@@ -309,8 +295,6 @@ Priest.prototype = Object.create(Supportmage.prototype);
 
 Priest.prototype.useSpell = function (target) {
     this.userInterface.print(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
-    console.log(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
-
     this.mana -= this.spell.cost;
 
     if (this.spell.name == "Heal" && target.undead) {

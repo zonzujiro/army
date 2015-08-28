@@ -2,19 +2,10 @@
 
 $(function () {
     var ui = new UserInterface();
-    var map = new Map(ui);
+    var field = new Map(ui);
     var addedUnits = [];
     
-    var warlock = ui.units.warlock();
-    var soldier = ui.units.soldier(); 
-    
-    addedUnits.push(warlock);
-    addedUnits.push(soldier);
-    
-    map.addUnit(warlock, 54);  
-    map.addUnit(soldier, 53);   
-    // map.addUnit(ui.units.warlock(), 11);  
-    // map.addUnit(ui.units.vampire(), 13);    
+    $("#info").html(ui.about);
     
     $("#units").click(function() {
         $("#list").html(ui.unitsOutput);
@@ -26,6 +17,10 @@ $(function () {
 
     $("#spells").click(function() {
         $("#list").html(ui.spellsOutput);
+    });
+    
+     $("#about").click(function() {
+        $("#info").html(ui.about);
     });
 
     $("body").on("mouseenter", ".unit", function () {
@@ -41,28 +36,25 @@ $(function () {
     }); 
     
     $("body").on("click", ".unit", function () {
-        var unit = ui.units[this.id]();
+        var index = $(".active").attr("id");
+        var unit = ui.units[this.id](),
+            oldUnit = field.map[index].unit;            
         
-        map.addUnit(unit, $(".active").attr("id"));
+        if (oldUnit != null) {
+            addedUnits.splice(addedUnits.indexOf(oldUnit), 1);
+        }
+                
+        field.addUnit(unit, index);
         addedUnits.push(unit);
-        $(".cell.active").removeClass("active");
+        $("#addUnitMenu").css("display", "none");  
     });
     
      $("body").on("click", ".cell", function(clicked) {
         $(".cell.active").removeClass("active");
-        // ui.drawAddUnitMenu();
-        
-        if ($("#addUnitMenu").is(":hidden")) {
-            console.log("worked");
-            $("#addUnitMenu").slideDown("slow");
-            $("#addUnitMenu").html(ui.addUnitMenu);
-        } else {
-            $("#addUnitMenu").hide();
-        }
-    
-        
-        // alert(clicked.pageX +', '+ clicked.pageY);
-        
+        $("#addUnitMenu").html(ui.addUnitMenu);
+        $("#addUnitMenu").css("left", clicked.pageX + "px");
+        $("#addUnitMenu").css("top", clicked.pageY + "px");
+        $("#addUnitMenu").css("display", "inline");        
         $(this).addClass("active");
     });
      
@@ -71,11 +63,9 @@ $(function () {
     });
      
     $("body").on("click", "#start", function() {
-        addedUnits.forEach(function(unit) {
-            if (addedUnits.indexOf(unit) != -1) {
-                unit.userInterface = ui;
-            }
+        addedUnits.forEach(function(unit) { 
+            unit.userInterface = ui; 
         });
-        map.start();
+        field.start();
     }); 
 });

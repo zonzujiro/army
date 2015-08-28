@@ -41,7 +41,9 @@ function UserInterface() {
 		healing: "<h1>Healing</h1><p>Healing... heals.</p><p><b>Effect:</b> 60 | <b>Mana cost:</b> 30</p>"
 	};
 	
-	this.addUnitMenu = "<ul id ='addUnitMenu'>";
+	this.about = "<h1>Army <i>beta</i></h1><p>It's a simple game. Place units on the map and then press start. Units have very simple AI and will attack each other. Also, they have unique abilities and some units can use magic. This is all. Have fun!</p><p>Special thanx to: <a href='https://github.com/kekal'>kekal</a>, <a href='https://github.com/dimkalinux/'>dimkalinux</a>, <a href='https://twitter.com/charming_elle' style='color: lightcoral;'>charming_elle</a>, and ant.</p><p>Project on <a href='https://github.com/zonzujiro/armyJS'>github</a>";
+	
+	this.addUnitMenu = "";
 	this.unitsOutput = "";
 	this.abilitiesOutput = "";
 	this.spellsOutput = "";
@@ -57,10 +59,8 @@ function UserInterface() {
 	
 	for (var value in this.units) {
 		this.unitsOutput += '<li id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
-		this.addUnitMenu += '<li id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + '</li>';
+		this.addUnitMenu += '<p id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</p>';
 	}	
-	
-	this.addUnitMenu += "</ul>";
 }
 
 UserInterface.prototype.print = function(text) {
@@ -69,8 +69,4 @@ UserInterface.prototype.print = function(text) {
 	this.counter += 1;
 	this.output = string + this.output;
 	$("#info").html(this.output);
-};
-
-UserInterface.prototype.drawAddUnitMenu = function() {
-	// body...
 };

@@ -20,14 +20,28 @@ b {
 }
 
 #addUnitMenu {
-    z-index: 1;
-    width: 100px;
-    height: 100px;
+    width: 105px;
+    height: 350px;
+    border: 1px black solid;
+    padding-left: 10px;
     display:none;
+    position: absolute;;
+    top: 0;
+    left: 0;
+    background-color: white;
 }
 
 #addUnitMenu li {
-    display: inline;    
+    display: inline;
+    padding-left: 5px;
+    cursor: pointer;
+}
+
+#addUnitMenu p:hover {
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    transition-duration: 0.5s;
 }
 
 #battleInfo {
@@ -76,7 +90,7 @@ b {
 }
 
 #list li {
-    font: 20pt Calibri;
+    font: 20pt Open Sans;
     margin-top: 12px;
     margin-bottom: 12px;
     padding-left: 5px;
@@ -90,7 +104,7 @@ b {
 }
 
 #string {
-    font: 13pt Arial;    
+    font: 13pt Open Sans-serif;    
     /*line-height: 1;*/
     padding: 5px;
     margin-top: 5px;
@@ -107,7 +121,7 @@ b {
     height: 500px;
     overflow: auto;
     float: left;
-    font: 18pt Calibri;
+    font: 18pt Open Sans;
     padding-left: 60px;
     /*margin-top: 20px;*/
 }
@@ -118,10 +132,14 @@ b {
     cursor: pointer;
 }
 
+.lourdess {
+    color: lightcoral;
+}
+
 #menu li {
     display: inline;
     /*margin-left: 5px;*/
-    font: 25pt Calibri;
+    font: 25pt Open Sans;
     padding-left: 5px;
     padding-right: 5px;
 }
@@ -130,6 +148,11 @@ b {
     color: white;
     background-color: black;
     transition-duration: 0.5s;
+}
+
+#menu.clicked {
+    color: white;
+    background-color: black;
 }
 
 #start {

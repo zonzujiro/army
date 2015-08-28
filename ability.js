@@ -17,7 +17,6 @@ function HideBehindShield(target) {
 HideBehindShield.prototype.action = function (dmg) {
     if (Math.random() > 0.3) {
         this.target.userInterface.print(this.target.state.name + " covers behind a shield and takes less damage [Damage: " + parseInt(dmg / 4, 10) + "]");
-        console.log(this.target.state.name + " covers behind a shield and takes less damage [Damage: " + parseInt(dmg / 4, 10) + "]");
         this.target.state.removeHp(dmg / 5);
         return true;
     }
@@ -49,8 +48,8 @@ function Vampirism(target) {
 
 Vampirism.prototype.action = function () {
     var drainedHp = parseInt(this.target.getDamage() / 3);
-
-    console.log(this.target.state.name + " drained " + drainedHp + "hp");
+    
+    this.target.userInterface.print(this.target.state.name + " drained " + drainedHp + "hp");
     this.target.addHitPoints(drainedHp);
 };
 
@@ -69,5 +68,4 @@ Transformation.prototype.action = function () {
     this.target.ensureIsAlive();
 
     this.target.userInterface.print(this.target.state.name + " transformed");
-    console.log(this.target.state.name + " transformed");
 };

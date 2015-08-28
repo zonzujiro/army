@@ -23,10 +23,7 @@ function Map() {
 }
 
 Map.prototype.addUnit = function (unit, index) {
-    if (this.map[index].getUnit() != null) {
-        throw new LocationAlreadyHaveUnitError("LocationAlreadyHaveUnitException");
-    }
-
+    this.map[index].setUnit(null);
     this.map[index].setUnit(unit);
     unit.setMap(this);
     this.numberOfUnits += 1;
@@ -80,17 +77,6 @@ Map.prototype.moveToLocation = function (unit, loc) {
     this.addUnit(unit, index);
 };
 
-// Map.prototype.calculateUnits = function () {
-//     var counter = 0;
-
-//     for (var i = 0; i < this.map.length; i++) {
-//         if (this.map[i].getUnit() != null) {
-//             counter += 1;
-//         }
-//     }
-//     return counter;
-// };
-
 Map.prototype.searchAllEnemies = function (self) {
     return this.map.filter(function (loc) {
         return loc.getUnit() != null && loc.getUnit() != self;
@@ -138,12 +124,6 @@ Map.prototype.findPathToEnemy = function (current, target) {
 Map.prototype.start = function () {
     for (var i = 0; i < this.map.length; i++) {
         var unit = this.map[i].getUnit();
-
-        // if (this.calculateUnits() > 1 && unit != null && this.acted.indexOf(unit) == -1) {
-        //     unit.act(this.map[i]);
-        //     this.acted.push(unit);
-        //     this.draw();
-        // }
         
         if (this.numberOfUnits > 1 && unit != null && this.acted.indexOf(unit) == -1) {
             unit.act(this.map[i]);
@@ -156,7 +136,6 @@ Map.prototype.start = function () {
 
     if (this.numberOfUnits > 1) {
         setTimeout(this.start.bind(this), 666);
-        console.log("--------------------------------");
     } else {
         this.draw();
     }
