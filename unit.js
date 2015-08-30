@@ -155,6 +155,14 @@ Unit.prototype.toString = function () {
     return this.state.toString();
 };
 
+function Archer(name, hp, dmg) {
+    Unit.apply(this, arguments);
+    this.attackMethod = new RangeAttack(dmg);
+    this.icon = "A";
+};
+
+Archer.prototype = Object.create(Unit.prototype);
+
 function Soldier(name, hp, dmg) {
     Unit.apply(this, arguments);
     this.attackMethod = new DefaultAttack(dmg);
@@ -278,6 +286,9 @@ Werewolf.prototype.act = function (unitLocation) {
         this.ability.action();
         
         if (!this.ensureIsAlive()) {
+            this.userInterface.print(this.state.name + " died because of war");
+            this.map.removeUnit(this);
+            this.notify();
             return;
         }
     }
