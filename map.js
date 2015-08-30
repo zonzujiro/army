@@ -1,4 +1,5 @@
-function Map() {
+function Map(userInterface) {
+    this.userInterface = userInterface;
     this.numberOfUnits = 0;
     this.map = [];
     this.acted = [];
@@ -18,7 +19,8 @@ function Map() {
             this.map.push(new Location(x, y));
         }
     }
-
+    
+    this.userInterface.map = this;
     this.draw();
 }
 
@@ -138,5 +140,6 @@ Map.prototype.start = function () {
         setTimeout(this.start.bind(this), 666);
     } else {
         this.draw();
+        this.userInterface.endGame();
     }
 };

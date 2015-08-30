@@ -8,27 +8,25 @@ h1 {
     font-size: 1.5em;
 }
 
-b {
-    /*font-weight: lighter;*/
-}
-
 #map {
     width: 540px;
     margin-right: auto;
     float: left;
-    margin-top: 45px;
+    margin-top: 65px;
 }
 
 #addUnitMenu {
     width: 105px;
-    height: 350px;
+    height: 385px;
     border: 1px black solid;
     padding-left: 10px;
-    display:none;
     position: absolute;;
     top: 0;
     left: 0;
-    background-color: white;
+    background-color: white;    
+    visibility:hidden;
+    opacity:0;
+    transition:visibility 0s linear 0.1s, opacity 0.2s linear;
 }
 
 #addUnitMenu li {
@@ -42,14 +40,6 @@ b {
     background-color: black;
     cursor: pointer;
     transition-duration: 0.5s;
-}
-
-#battleInfo {
-    width: 540px;
-    height: 500px;
-    overflow: auto;
-    margin-right: auto;
-    float: left;
 }
 
 .cell {
@@ -86,7 +76,6 @@ b {
     margin-left: 10px;
     border-left: 1.5px solid black;
     list-style-type: none;
-    /*display: block;   */
 }
 
 #list li {
@@ -105,7 +94,6 @@ b {
 
 #string {
     font: 13pt Open Sans-serif;    
-    /*line-height: 1;*/
     padding: 5px;
     margin-top: 5px;
     margin-bottom: 5px;
@@ -123,7 +111,13 @@ b {
     float: left;
     font: 18pt Open Sans;
     padding-left: 60px;
-    /*margin-top: 20px;*/
+    transition-duration: 1s;
+}
+
+#info.inBattle {
+    margin-left: -220px;
+    width: 600px;
+    transition-duration: 1s;
 }
 
 #menu {
@@ -138,7 +132,6 @@ b {
 
 #menu li {
     display: inline;
-    /*margin-left: 5px;*/
     font: 25pt Open Sans;
     padding-left: 5px;
     padding-right: 5px;
@@ -150,9 +143,12 @@ b {
     transition-duration: 0.5s;
 }
 
-#menu.clicked {
-    color: white;
-    background-color: black;
+.inactive {
+    color: grey;
+}
+
+.clicked {
+    border-bottom: 2px solid black;
 }
 
 #start {

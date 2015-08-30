@@ -5,26 +5,34 @@ $(function () {
     var field = new Map(ui);
     var addedUnits = [];
     
-    $("#info").html(ui.about);
+    $("#info").html(ui.info.game);
+    $("#game").addClass("clicked");
     
-    $("#units").click(function() {
-        $("#list").html(ui.unitsOutput);
-    });
-
-    $("#abilities").click(function() {
-        $("#list").html(ui.abilitiesOutput);
-    });
-
-    $("#spells").click(function() {
-        $("#list").html(ui.spellsOutput);
+    $("#start").click(function() {        
+        addedUnits.forEach(function(unit) { 
+            unit.userInterface = ui; 
+        });
+        
+        $("#start").removeClass("clicked");
+        $("#list").html("");
+        $("#info").addClass("inBattle");
+        ui.startGame();
     });
     
-     $("#about").click(function() {
-        $("#info").html(ui.about);
+    $(".item").click(function() {
+        $("#info").html(ui.info[this.id]);
+        $("#list").html(ui.list[this.id]);
+        $("li").removeClass("clicked");
+        $("#" + this.id).addClass("clicked");
+        $("#addUnitMenu").css({
+            "visibility":"hidden",
+            "opacity":0,
+            "transition-delay":"visibility 0s linear 0.1s, opacity 0.2s linear"
+        });
     });
 
     $("body").on("mouseenter", ".unit", function () {
-        $("#info").html(ui.bio[this.id]);
+        $("#info").html(ui.bio[this.id]);      
     });
     
     $("body").on("mouseenter", ".ability", function () {
@@ -46,26 +54,32 @@ $(function () {
                 
         field.addUnit(unit, index);
         addedUnits.push(unit);
-        $("#addUnitMenu").css("display", "none");  
+        
+        $("#addUnitMenu").css({
+            "visibility":"hidden",
+            "opacity":0,
+            "transition-delay":"visibility 0s linear 0.1s, opacity 0.2s linear"
+        });
     });
     
-     $("body").on("click", ".cell", function(clicked) {
-        $(".cell.active").removeClass("active");
+    // $("body").on("mouseleave", "#map", function () {
+    //     $("#addUnitMenu").css({
+    //         "visibility":"hidden",
+    //         "opacity":0,
+    //         "transition-delay":"visibility 0s linear 0.1s, opacity 0.2s linear"
+    //     });
+    // });
+        
+    $("body").on("click", ".cell", function(clicked) {
+        $(".cell.active").removeClass("active");     
         $("#addUnitMenu").html(ui.addUnitMenu);
         $("#addUnitMenu").css("left", clicked.pageX + "px");
         $("#addUnitMenu").css("top", clicked.pageY + "px");
-        $("#addUnitMenu").css("display", "inline");        
+        $("#addUnitMenu").css({
+            "visibility":"visible",
+            "opacity":1,
+            "transition-delay":"0s"
+        });   
         $(this).addClass("active");
     });
-     
-    $("body").on("click", "#log", function() {
-        $("#info").html(ui.output);
-    });
-     
-    $("body").on("click", "#start", function() {
-        addedUnits.forEach(function(unit) { 
-            unit.userInterface = ui; 
-        });
-        field.start();
-    }); 
 });

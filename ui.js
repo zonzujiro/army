@@ -1,19 +1,22 @@
 function UserInterface() {
 	this.counter = 1;
-	
+	this.addUnitMenu = "";
+	this.map;
+		
 	this.units = {
-	        soldier: function () { return new Soldier("Soldier", 200, 20) },
-	        berserker: function () { return new Berserker("Berserker", 200, 20) },
-	        rogue: function () { return new Rogue("Rogue", 175, 30) },
-	        werewolf: function () { return new Werewolf("Werewolf", 150, 15) },
-	        vampire: function () { return new Vampire("Vampire", 200, 25) },
-	        wizard: function () { return new Wizard("Wizard", 150, 10, 200) },
-	        warlock: function() { return new Warlock("Warlock", 170, 15, 150) }, 
-	        priest: function () { return new Priest("Priest", 160, 15, 300) },
-	        healer: function () { return new Healer("Healer", 130, 10, 300) },
-	        necromancer: function () { return new Necromancer("Necromancer", 200, 20, 200) }
-    } 
-	
+        archer: function () { return new Archer("Archer", 150, 35) },
+        soldier: function () { return new Soldier("Soldier", 200, 20) },
+        berserker: function () { return new Berserker("Berserker", 200, 20) },
+        rogue: function () { return new Rogue("Rogue", 175, 30) },
+        werewolf: function () { return new Werewolf("Werewolf", 150, 15) },
+        vampire: function () { return new Vampire("Vampire", 200, 25) },
+        wizard: function () { return new Wizard("Wizard", 150, 10, 200) },
+        warlock: function() { return new Warlock("Warlock", 170, 15, 150) }, 
+        priest: function () { return new Priest("Priest", 160, 15, 300) },
+        healer: function () { return new Healer("Healer", 130, 10, 300) },
+        necromancer: function () { return new Necromancer("Necromancer", 200, 20, 200) }
+    };
+    
 	this.bio = {
 		soldier: "<h1>S - Soldier</h1><p>Simple close combat unit. Can use shield.</p><p><b>Health:</b> 200 | <b>Damage:</b> 20 | <b>Icon on map:</b> S </p><p><i>Note: soldier will rise shield with 70% chance. If shield raised up - incoming damage reduced to 1/4 from the original.</i></p>",
 		berserker: "<h1>B - Berserker</h1><p>Invulnerable to magic and have rage state which double his damage.<p><b>Health:</b> 230 | <b>Damage:</b> 30</p></p><p><i>Note: when rage state is turned on, it can't be turned off.",
@@ -35,30 +38,38 @@ function UserInterface() {
 		transform: "<h1>Transformation</h1><p>Ability of the Werewolf. Allows transform werewolf in to wolf or in to human. In wolf form werewolf have double health and damage. The werewolf tries to use the ability at the beginning of each turn.</p><p><b>Chance:</b> 70%</p>",
 		vampirism: "<h1>Vampirism</h1><p>Ability of the Vampire. Allows the vampire to be treated during the attack. Healing amount - 1/4 of damage.</p><p><b>Chance:</b> always</p>",
 	};
-
+	
 	this.spells = {
-		fireball: "<h1>Fireball</h1><p>Fire from the sky! And rock... maybe.</p><p><b>Damage:</b> 50 | <b>Mana cost:</b> 40</p>",
+		fireball: "<h1>Fireball</h1><p>Fireball... fires.</p><p><b>Damage:</b> 50 | <b>Mana cost:</b> 40</p>",
 		healing: "<h1>Healing</h1><p>Healing... heals.</p><p><b>Effect:</b> 60 | <b>Mana cost:</b> 30</p>"
 	};
 	
-	this.about = "<h1>Army <i>beta</i></h1><p>It's a simple game. Place units on the map and then press start. Units have very simple AI and will attack each other. Also, they have unique abilities and some units can use magic. This is all. Have fun!</p><p>Special thanx to: <a href='https://github.com/kekal'>kekal</a>, <a href='https://github.com/dimkalinux/'>dimkalinux</a>, <a href='https://twitter.com/charming_elle' style='color: lightcoral;'>charming_elle</a>, and ant.</p><p>Project on <a href='https://github.com/zonzujiro/armyJS'>github</a>";
+	this.info = {
+		game: "<h1>Army <i>beta</i></h1><p>It's a simple game. Place units on the map and then press start. Units have very simple AI and will attack each other. Also, they have unique abilities and some units can use magic. This is all. Have fun!</p><p>Special thanx to: <a href='https://github.com/kekal'>kekal</a>, <a href='https://github.com/dimkalinux/'>dimkalinux</a>, <a href='https://twitter.com/charming_elle' style='color: lightcoral;'>charming_elle</a> and <a href='http://zy0rg.deviantart.com/'>zy0rg</a>.</p><p>Project on <a href='https://github.com/zonzujiro/armyJS'>github</a>",
+		units: "<p>There are several tipe of units. Everyone can move and attack. :) Some of them have unique abilities, some of them can use magic.</p><p>Simple units, like Soldier or Berserker have only hitpoints and damage amount. Mages, like Wizzard or Healer, also have mana points.</p>",
+		abilities: "<p>Some units have unique abilities. Each unit will use own ability automaticly.</p>",
+		spells: "<p>Mages can use magic. Surprise!</p>",
+		log: ""	
+	};
 	
-	this.addUnitMenu = "";
-	this.unitsOutput = "";
-	this.abilitiesOutput = "";
-	this.spellsOutput = "";
-	this.output = "";
+	this.list = {
+		log: "",
+		units: "",
+		abilities: "",
+		spells: "",
+		game:""
+	}
 	
 	for (var value in this.abilities) {
-		this.abilitiesOutput += '<li id="'+ value + '" class="ability">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
+		this.list.abilities += '<li id="'+ value + '" class="ability">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
 	}
 
 	for (var value in this.spells) {
-		this.spellsOutput += '<li id="'+ value + '" class="spell">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
+		this.list.spells += '<li id="'+ value + '" class="spell">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
 	}
 	
 	for (var value in this.units) {
-		this.unitsOutput += '<li id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
+		this.list.units += '<li id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
 		this.addUnitMenu += '<p id="'+ value + '" class="unit">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</p>';
 	}	
 }
@@ -67,6 +78,40 @@ UserInterface.prototype.print = function(text) {
 	var string = '<p id="string"># ' + this.counter + " | " + text + '</p>';
 	
 	this.counter += 1;
-	this.output = string + this.output;
-	$("#info").html(this.output);
+	this.info.log = string + this.info.log;
+	$("#info").html(this.info.log);
+};
+
+UserInterface.prototype.startGame = function() {
+	$(".item").off();
+	$(".item").addClass("inactive");
+	$(".item").removeClass("clicked");
+	$("#log").addClass("clicked");
+	this.map.start();
+};
+
+UserInterface.prototype.endGame = function() {
+	var info = this.info;
+	var list = this.list;
+	var addUnitMenu = this.addUnitMenu;
+	
+	$("#info").removeClass("inBattle");
+	$(".item").removeClass("inactive");
+	
+	$(".item").click(function() {
+        $("#info").html(info[this.id]);
+        $("#list").html(list[this.id]);
+        $("li").removeClass("clicked");
+        $("#" + this.id).addClass("clicked");
+        $("#addUnitMenu").css("display", "none");  
+    });
+    
+    $("body").on("click", ".cell", function(clicked) {
+        $(".cell.active").removeClass("active");
+        $("#addUnitMenu").html(addUnitMenu);
+        $("#addUnitMenu").css("left", clicked.pageX + "px");
+        $("#addUnitMenu").css("top", clicked.pageY + "px");
+        $("#addUnitMenu").css("display", "inline");        
+        $(this).addClass("active");
+    });
 };
