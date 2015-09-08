@@ -36,7 +36,7 @@ function UserInterface() {
 		evading: "<h1>Evading</h1><p>Ability of the Rogue. Allows rogue to evade attacks without taking damage. When ability triggers, rogue moves to the random cell nearby with his enemy. Working when somebody trying to attack rogue.</p><p><b>Chance:</b> 30% </p>",
 		shield: "<h1>Hide behind a shield</h1><p>Ability of the Soldier. Reduces incoming damage from magic and physic attack. Working when somebody trying to attack soldier.</p><p><b>Chance:</b> 70%</p>",
 		transform: "<h1>Transformation</h1><p>Ability of the Werewolf. Allows transform werewolf in to wolf or in to human. In wolf form werewolf have double health and damage. The werewolf tries to use the ability at the beginning of each turn.</p><p><b>Chance:</b> 70%</p>",
-		vampirism: "<h1>Vampirism</h1><p>Ability of the Vampire. Allows the vampire to be treated during the attack. Healing amount - 1/4 of damage.</p><p><b>Chance:</b> always</p>",
+		vampirism: "<h1>Vampirism</h1><p>Ability of the Vampire. Allows the vampire to be treated during the attack. Healing amount - 1/4 of damage.</p><p><b>Chance:</b> always</p>"
 	};
 	
 	this.spells = {
@@ -58,7 +58,7 @@ function UserInterface() {
 		abilities: "",
 		spells: "",
 		game:""
-	}
+	};
 	
 	for (var value in this.abilities) {
 		this.list.abilities += '<li id="'+ value + '" class="ability">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';

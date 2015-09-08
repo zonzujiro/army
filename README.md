@@ -1,6 +1,6 @@
 # armyJS
 
-Each player can choose units and place them on field. 
+Choose units and place them on field. 
 After that, units will automatically move and attack each other.
 
 Units:

@@ -1,31 +1,15 @@
-function Spellbook() {
-    this.spellbook = [];
-};
+'use strict'
 
-Spellbook.prototype.getSpell = function (name) {
-    for (var i = 0; i < this.spellbook.length; i++) {
-        if (this.spellbook[i].getName() == name) {
-            return this.spellbook[i];
-        };
+class Spellbook {
+    constructor() {
+        this.book = {};     
     }
-};
-
-Spellbook.prototype.addSpell = function (spell) {
-    this.spellbook.push(spell);
-};
-
-Spellbook.prototype.removeSpell = function (spell) {
-    var index = spellbook.indexOf(spell);
-
-    if (index != -1) {
-        spellbook.splice(index, 1);
+    
+    getSpell(name) {
+        return this.book[name];
     }
-};
-
-Spellbook.prototype.changeSpell = function (name) {
-    for (var i = 0; i < spellbook.length(); i++) {
-        if (spellbook[i].getName() == name) {
-            spell = spellbook[i];
-        };
+    
+    addSpell(spell) {        
+        this.book[spell.name] = spell;
     }
-};
+}
