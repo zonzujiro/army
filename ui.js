@@ -4,6 +4,7 @@ class UserInterface {
     constructor() {
         this.counter = 1;
         this.addUnitMenu = "";
+        this.history = "";
         this.map;
         
         this.units = {
@@ -57,8 +58,7 @@ class UserInterface {
             }      
         }            
         
-        this.list = {
-            log: "",
+        this.list = {            
             units: "",
             abilities: "",
             spells: "",
@@ -83,8 +83,8 @@ class UserInterface {
         var string = '<p id="string"># ' + this.counter + " | " + text + '</p>';
         
         this.counter += 1;
-        this.info.log = string + this.info.log;
-        $("#info").html(this.info.log);
+        this.history = string + this.history;
+        $("#info").html(this.history);
     };
 
     startGame() {
@@ -99,15 +99,17 @@ class UserInterface {
     };
 
     endGame() {
-        var info = this.info;
+        var library = this.library;
         var list = this.list;
         var addUnitMenu = this.addUnitMenu;
+        
+        this.map.size = 0;
         
         $("#info").removeClass("inBattle");
         $(".item").removeClass("inactive");
         
         $(".item").click(function() {
-            $("#info").html(this.library.about[this.id]);
+            $("#info").html(library.about[this.id]);
             $("#list").html(list[this.id]);
             $("li").removeClass("clicked");
             $("#" + this.id).addClass("clicked");
