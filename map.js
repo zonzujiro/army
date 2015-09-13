@@ -1,167 +1,148 @@
-function Map () {
-	this.map = [][];
-	this.acted = [];
-	this.height = 8;
-	this.width = 8;
-	this.numberOfUnits = 0;
-	
-	this.directions = {
-	    "n": new Location(0, -1),
-	    "ne": new Location(1, -1),
-	    "e": new Location(1, 0),
-	    "se": new Location(1, 1),
-	    "s": new Location(0, 1),
-	    "sw": new Location(-1, 1),
-	    "w": new Location(-1, 0),
-	    "nw": new Location(-1, -1)
-	};
-}
+"use strict"
 
-Map.prototype.isInside = function(num) {
-	return num >= 0 && num < this.height;
-};
+class Map {
+    constructor(userInterface) {
+        this.userInterface = userInterface;
+        this.userInterface.map = this;
+        this.numberOfUnits = 0;
+        this.map = [];
+        this.acted = [];
+        this.directions = {
+            "n": new Location(0, -1),
+            "ne": new Location(1, -1),
+            "e": new Location(1, 0),
+            "se": new Location(1, 1),
+            "s": new Location(0, 1),
+            "sw": new Location(-1, 1),
+            "w": new Location(-1, 0),
+            "nw": new Location(-1, -1)
+        };
 
-Map.prototype.addUnit = function(unit, x, y) {
-	if (map[x][y].getUnit() != null) {
-		throw new LocationAllreadyHaveUnitException();
-	}
-	map[x][y].setUnit(unit);
-	unit.setMap(this);
-	numberOfUnits += 1;
-};
-
-Map.prototype.draw = function() {
-   var html = '';
-   var i = 0;
-
-    for (var x = 0; i < width; x++) {
-    	for (var y = 0; y < height; y++) {
-        	html += '<div id="' + i + '" class="cell">' + map[x][y].type + '</div>';
-        	i += 1; 		
-    	}
+        for (var y = 0; y < 8; y++) {
+            for (var x = 0; x < 8; x++) {
+                this.map.push(new Location(x, y));
+            }
+        }
+        this.draw();
     }
+    
+    addUnit(unit, index) {
+        this.map[index].unit = null;
+        this.map[index].unit = unit;
+        unit.map = this;
+        this.numberOfUnits += 1;
+        this.draw();
+    }
+    
+    draw() {
+        var total = 8;
+        var index = this.map.length - total;
+        var width = 8,
+            height = 8;
+        var html = '';
 
-    $('#map').html(html);
-};
+        for (let k = 0; k < width; k++) {
+            for (let z = 0; z < height; z++, index++, total++) {
+                // html += '<div id="x:' + this.map[index].x + ' y:' + this.map[index].y + ' index:' + index + '" class="cell">' + this.map[index].toString() + '</div>'; test of coordinate drawing
+                html += '<div id="' + index + '" class="cell">' + this.map[index].toString() + '</div>';
+            }
+            index = this.map.length - total;
+        }
 
-Map.prototype.checkEnemies = function(unitX, unitY, attackDistance) {
-	for (value in directions) {
-            int x = unitX + value.getX() * attackDistance;
-            int y = unitY + value.getY() * attackDistance;
-            
+        $("#map").html(html);
+    }
+    
+    checkAreaAround(loc) {
+        var x, y, index, checked = [];
+
+        function isInside(num) {
+            return num >= 0 && num < 8;
+        }
+
+        for (let value in this.directions) {
+            x = loc.x + this.directions[value].x;
+            y = loc.y + this.directions[value].y;
+
             if (isInside(x) && isInside(y)) {
-                if (field[x][y].getUnit() != null) {
-                    return field[x][y].getUnit();
+                index = x + y * 8;
+
+                if (this.map[index].unit == null) {
+                    checked.push(this.map[index]);
                 }
             }
         }
-    return null;
-};
-
-Map.prototype.checkArea = function(x, y, actionPoints) {
-    var targetX, targetY, directionX, directionY;    
-    var target;
+        return checked;
+    }
     
-    for (var i = 1; i <= actionPoints; actionPoints--) {    
-    	for (value in directions) {
-    		targetX = x + value.getX() * i;
-    		targetY = y + value.getY() * i;
-			directionX = x + value.getX();
-			directionY = y + value.getY();
+    moveToLocation(unit, loc) {
+        var index = loc.x + loc.y * 8;
 
-			if (isInside(targetX) && isInside(targetY) && isInside(directionX) && isInside(directionY)) {
-				if (map[directionX][directionY].getUnit() == null) {
-				    target = map[directionX][directionY];
-				}
+        this.removeUnit(unit);
+        this.addUnit(unit, index);
+    }
+    
+    searchAllEnemies(self) {
+        return this.map.filter(function (loc) {
+            return loc.unit != null && loc.unit != self;
+        });
+    }
+    
+    removeUnit(unit) {
+        this.searchUnitLocation(unit).unit = null;
+        this.numberOfUnits -= 1;
+        this.draw();
+    }
+    
+    searchUnitLocation(unit) {
+        for (let i = 0; i < this.map.length; i++) {
+            if (this.map[i].unit == unit) {
+                return this.map[i];
+            }
+        }
+    }
+    
+    findPathToEnemy(current, target) {
+        var currentX = current.x,
+            currentY = current.y;
+        var targetX = target.x,
+            targetY = target.y;
+        var index;
 
-				if (map[targetX][targetY].getUnit() != null && map[directionX][directionY].getUnit() == null) {                  
-				    return map[directionX][directionY];
-				}                
-			}
-		}
-	}
-	return target;    
-};
+        if (currentX < targetX) {
+            currentX += 1;
+        } else if (currentX > targetX) {
+            currentX -= 1;
+        }
 
-Map.prototype.turn = function() {
-	var unit;
-	
-	for (var x = 0; x < width; x++) {
-		for (var y = 0; y < height; y++) {
-			unit = map[x][y].getUnit();
-			
-			if (unit != null && acted.indexOf(unit) == -1) {
-				unit.act(x, y);
-				acted.push(unit);
-			}			
-		}
-	}	
-};
+        if (currentY < targetY) {
+            currentY += 1;
+        } else if (currentY > targetY) {
+            currentY -= 1;
+        }
 
-Map.prototype.removeUnit = function(unit) {
-	searchUnit(unit).setUnit(null);
-	numberOfUnits -= 1;
-};
+        index = currentX + currentY * 8;
 
-Map.prototype.nearestEnemies = function() {
-	// body...
-};
+        return this.map[index];
+    }
+    
+    start() {
+        for (let i = 0; i < this.map.length; i++) {
+            var unit = this.map[i].unit;
+            
+            if (this.numberOfUnits > 1 && unit != null && this.acted.indexOf(unit) == -1) {
+                unit.act(this.map[i]);
+                this.acted.push(unit);
+                this.draw();
+            }
+        }
 
-Map.prototype.searchUnit = function(unit) {
-	for (var x = 0; x < width; x++) {
-		for (var y = 0; y < height; y++) {
-			if (map[x][y].getUnit() == unit) {
-				return map[x][y];
-			}			
-		}
-	}
-};
+        this.acted = [];
 
-Map.prototype.start = function() {
-	for ( ; numberOfUnits > 1; ) {
-		turn();
-		this.acted = [];
-	}
-};
-
-
-function Location(x, y) {
-    this.x = x;
-    this.y = y;
-    this.unit = null;
-};
-
-Location.prototype.getX = function() {
-	return this.x;
-};
-
-Location.prototype.getY = function() {
-	return this.y;
-};
-
-Location.prototype.getUnit = function() {
-	return this.unit;
-};
-
-Location.prototype.setX = function(value) {
-	this.x = value;
-};
-
-Location.prototype.setY = function(value) {
-	this.y = value;
-};
-
-Location.prototype.setUnit = function(unit) {
-	this.unit = unit;
-};
-
-Location.prototype.distance = function(loc) {
-	return Math.floor(Math.hypot(this.x - loc.x, this.y - loc.y));
-};
-
-Location.prototype.toString = function() {
-	if (this.unit = null) {
-		return "";
-	}
-	return unit.getIcon();
-};
+        if (this.numberOfUnits > 1) {
+            setTimeout(this.start.bind(this), 666);
+        } else {
+            this.draw();
+            this.userInterface.endGame();
+        }
+    }
+}

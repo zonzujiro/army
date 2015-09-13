@@ -1,208 +1,273 @@
-function Unit(name, hp, dmg) {
-    this.state = new State(name, hp, dmg);
-    this.wolfState = null;
-    this.infectPossibility = true;
-    this.isWolf = false;
-    this.isUndead = false;
-    this.icon = " ";
-    this.map = [];
-};
+"use strict"
 
-Unit.prototype.ensureIsAlive = function () {
-    if (this.getCurrentHp() == 0) {
-        return false;
+class Unit {
+    constructor(name, hp, dmg) {
+        this.icon;
+        this.map;
+        this.enemy;
+        this.userInterface;
+        this.state = new State(name, hp, dmg);
+        this.wolfState = null;
+        this.ability = null;
+        this.immunity = false;
+        this.wolf = false;
+        this.undead = false;
+        this.observers = new Set();
     }
-    return true;
-};
-
-Unit.prototype.getDamage = function () {
-    return this.state.getStateDamage();
-};
-
-Unit.prototype.getCurrentHp = function () {
-    return this.state.getStateCurrentHp();
-};
-
-Unit.prototype.getMaxHp = function () {
-    return this.state.getStateMaxHp();
-};
-
-Unit.prototype.getName = function () {
-    return this.state.getStateName();
-};
-
-Unit.prototype.getState = function () {
-    return this.state;
-};
-
-Unit.prototype.getWolfState = function () {
-    return this.wolfState;
-}
-
-Unit.prototype.getInfectPossibility = function () {
-    return this.infectPossibility;
-};
-
-Unit.prototype.getIsWolf = function () {
-    return this.isWolf;
-};
-
-Unit.prototype.getIsUndead = function () {
-    return this.isUndead;
-}
-
-Unit.prototype.getIcon = function () {
-    return this.icon;
-};
-
-Unit.prototype.getLocation = function () {
-    return field.searchUnitLocation(this);
-};
-
-Unit.prototype.getActionPoints = function () {
-    return this.actionPoints;
-};
-
-Unit.prototype.getAttackRange = function () {
-    return attackMethod.getRange();
-};
-
-Unit.prototype.changeInfectPossibility = function () {
-    this.infectPossibility = !infectPossibility;
-};
-
-Unit.prototype.changeIsWolf = function () {
-    this.isWolf = !isWolf;
-};
-
-Unit.prototype.changeIsUndead = function () {
-    this.isUndead = !isUndead;
-};
-
-Unit.prototype.setAbility = function (newAbility) {
-    this.state.newStateAbility(newAbility);
-
-    if (this.wolfState != null) {
-        this.wolfState.newStateAbility(newAbility);
-    }
-};
-
-Unit.prototype.setAttackMethod = function (newMethod) {
-    this.attackMethod = newMethod;
-};
-
-Unit.prototype.setName = function setName(newName) {
-    state.newStateName(newName);
-};
-
-Unit.prototype.setState = function (newState) {
-    this.state = newState;
-}
-
-Unit.prototype.setWolfState = function (newState) {
-    this.wolfState = newState;
-};
-
-Unit.prototype.setIcon = function (icon) {
-    this.icon = icon;
-};
-
-Unit.prototype.act = function(index) {
     
-};
+    ensureIsAlive() {
+        if (this.hp == 0) {
+            this.userInterface.print(this.state.name + " died because of war");
+            this.map.removeUnit(this);
+            this.notify();
+            return false;
+        }
+        return true;
+    }
+    
+    get dmg() {
+        return this.state.dmg;
+    }
+    
+    get hp() {
+        return this.state.hp;
+    }
+    
+    get maxHp() {
+        return this.state.maxHp;
+    }
+    
+    get name() {
+        return this.state.name;
+    }
+    
+    get location() {
+        return this.map.searchUnitLocation(this);
+    }
+    
+    get attackDistance() {
+        return this.attackMethod.distance;
+    }
+    
+    changeIsWolf() {
+        this.wolf = !this.wolf;
+    }
+    
+    act(unitLocation) {
+        this.userInterface.print("[" + this + "] turn");
 
-Unit.prototype.addHitPoints = function (hp) {
-    if (ensureIsAlive()) {
+        var enemies = this.map.searchAllEnemies(this);
+        var target = this.chooseNearestEnemy(enemies, unitLocation);
+
+        if (unitLocation.distance(target) <= this.attackDistance) {
+            this.attack(target.unit);
+            return;
+        }
+
+        this.move(this.map.findPathToEnemy(unitLocation, target));
+    }
+    
+    move(loc) {
+        this.map.moveToLocation(this, loc);
+    }
+    
+    addHitPoints(hp) { 
         this.state.addHp(hp);
     }
-};
-
-Unit.prototype.attack = function (enemy) {
-    this.attackMethod.attack(enemy);
-    enemy.counterAttack(this);
-};
-
-Unit.prototype.counterAttack = function (enemy) {
-    if (!ensureIsAlive()) {
-        return;
+    
+    attack(enemy) {
+        this.userInterface.print(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.dmg + "]");
+        enemy.enemy = this;
+        this.attackMethod.attack(enemy);
+        enemy.counterattack(this);
     }
+    
+    counterattack(enemy) {
+        if (this.hp > 0) {
+            this.userInterface.print(this.state.name + " counterattacking " + enemy.state.name + " [dmg: " + this.dmg / 2 + "]");
+            enemy.enemy = this;
+            this.attackMethod.counterattack(enemy);
+        }
+    }
+    
+    chooseNearestEnemy(enemies, loc) {
+        return enemies.reduce(
+            function (prev, current) {
+                return loc.distance(current) > loc.distance(prev) ? prev : current;
+            }
+        );
+    }
+    
+    takeDamage(dmg) {
+        if (this.ensureIsAlive()) {
+            this.state.removeHp(dmg);
+            this.ensureIsAlive();
+        }
+    }
+    
+    takeMagicDamage(dmg) {
+        this.takeDamage(dmg);
+    }
+    
+    notify() {
+        var self = this;        
 
-    this.attackMethod.counterAttack(enemy);
-};
+        if (this.observers.size > 0) {
+            this.userInterface.print(this.state.name + " gives " + parseInt(this.state.maxHp / 3, 10) + "hp to his observers");
+            this.observers.forEach(function (observer) {
+                observer.addHitPoints(self.maxHp / 3);
+            });
+        }
+    }
+    
+    addObserver(observer) {
+        this.observers.add(observer);
+    }
+    
+    toString() {
+        return this.state.toString();
+    }
+}
 
-Unit.prototype.takeDamage = function (dmg) {
-    if (ensureIsAlive()) {
+class Archer extends Unit {
+    constructor(name, hp, dmg) {
+        super(name, hp, dmg);
+        
+        this.attackMethod = new RangeAttack(dmg);
+        this.icon = "A";
+    }
+}
+
+class Soldier extends Unit {
+    constructor(name, hp, dmg) {
+        super(name, hp, dmg);
+        
+        this.attackMethod = new DefaultAttack(dmg);
+        this.ability = new HideBehindShield(this);
+        this.icon = "S";
+    }
+    
+    takeDamage(dmg) {
+        if (this.ability.action(dmg)) {
+            return;
+        }
+        super.takeDamage(dmg);
+    }
+}
+
+class Demon extends Unit {
+    constructor(name, hp, dmg, master, map) {
+        super(name, hp, dmg);        
+        this.attackMethod = new DefaultAttack(dmg);
+        this.master = master;
+        this.map = map;
+        this.immunity = true;
+        this.master.slave = this;
+    }
+    
+    getLocation() {
+        return this.map.searchUnitLocation(this.master);
+    }
+    
+    takeDamage(dmg) {
         this.state.removeHp(dmg);
+
+        if (this.hp == 0) {
+            this.master.freeSlave();
+        }
     }
-};
+}
 
-Unit.prototype.takeMagicDamage = function (dmg) {
-    if (ensureIsAlive()) {
-        this.takeDamage(dmg);
+class Berserker extends Unit {
+    constructor(name, hp, dmg) {
+        super(name, hp, dmg);
+        
+        this.attackMethod = new DefaultAttack(dmg);
+        this.icon = "B";
     }
-};
-
-Unit.prototype.useAbility = function () {
-    if (ensureIsAlive()) {
-        this.state.useAbility();
+    
+    takeMagicDamage(dmg) {
+        this.userInterface.print("Berserker invulnerable to magic");
     }
-};
+}
 
-Unit.prototype.toString = function () {
-    return this.getName() + " [HP: " + this.getCurrentHp() + "/" + this.getMaxHp() + " Damage: " + this.getDamage() + "]";
-};
-
-function Soldier(name, hp, dmg) {
-    Unit.apply(this, arguments);
-    this.attackMethod = new DeffaultAttack(dmg);
-};
-
-function Berserker(name, hp, dmg) {
-    Unit.apply(this, arguments);
-    this.attackMethod = new DeffaultAttack(dmg);
-};
-
-Berserker.prototype.takeMagicDamage = function (dmg) {
-    return "Berserker invulnerable to magic";
-};
-
-Berserker.prototype.addHitPoints = function (hp) {
-    return "Berserker invulnerable to magic";
-};
-
-function Rogue(name, hp, dmg) {
-    Unit.apply(this, arguments);
-    this.attackMethod = new DeffaultAttack(dmg);
-};
-
-Rogue.prototype.attack = function (enemy) {
-    enemy.takeDamage(this.dmg);
-};
-
-function Vampire(name, hp, dmg) {
-    Unit.apply(name, hp, dmg);
-    this.attackMethod = new VampireAttack(this);
-    this.infectPossibility = false;
-    this.isUndead = true;
-    this.setAbility(new Vampirism(this));
-};
-
-Vampire.prototype.setAbility = function (newAbility) {
-    this.state.newStateAbility(newAbility);
-};
-
-function Werewolf(name, hp, dmg) {
-    Unit.apply(name, hp, dmg);
-    this.attackMethod = new WerewolfAttack(dmg);
-    this.state = new State(name + " as Human", hp, dmg);
-    this.wolfState = new State(name + " as Wolf", hp * 2, dmg * 2);
-    this.setAbility(new Transformation(this));
-};
-
-Werewolf.prototype.takeMagicDamage = function (dmg) {
-    if (this.isWolf) {
-        this.takeDamage(dmg * 2);
-    } else {
-        this.takeDamage(dmg);
+class Rogue extends Unit {
+    constructor(name, hp, dmg) {
+        super(name, hp, dmg);
+        
+        this.attackMethod = new DefaultAttack(dmg);
+        this.ability = new Evading(this, this.map);
+        this.icon = "R";
     }
-};
+    
+    attack(enemy) {
+        enemy.enemy = this;
+        enemy.takeDamage(this.dmg);
+    }
+    
+    takeDamage(dmg) {
+       if (Math.random() > 0.5) {
+            if (this.ability.action(this.map, this.enemy)) {
+                this.userInterface.print(this.state.name + " evading attack with no harm");
+                return;
+            };
+        }
+        
+        super.takeDamage(dmg);
+    }
+}
+
+class Vampire extends Unit {
+    constructor(name, hp, dmg) {
+        super(name, hp, dmg);
+        
+        this.attackMethod = new VampireAttack(this);
+        this.ability = new Vampirism(this);
+        this.immunity = true;
+        this.undead = true;
+        this.icon = "V";
+    }    
+}
+
+class Werewolf extends Unit {
+    constructor(name, hp, dmg) {
+        super(name, hp, dmg);
+        
+        this.attackMethod = new WerewolfAttack(dmg);
+        this.ability = new Transformation(this);
+        this.immunity = true;
+        this.state = new State(name + " as Human", hp, dmg);
+        this.wolfState = new State(name + " as Wolf", hp * 2, dmg * 2);
+        this.icon = "W";
+    }
+    
+    act(unitLocation) {
+        this.userInterface.print("[" + this + "] turn");
+
+        var enemies = this.map.searchAllEnemies(this);
+        var target = this.chooseNearestEnemy(enemies, unitLocation);
+
+        if (Math.random() > 0.7) {
+            this.ability.action();
+            
+            if (!this.ensureIsAlive()) {
+                return;
+            }
+        }
+
+        if (unitLocation.distance(target) <= this.attackDistance) {
+            this.attack(target.unit);
+            return;
+        }
+
+        this.move(this.map.findPathToEnemy(unitLocation, target));
+    }
+    
+    takeMagicDamage(dmg) {
+        if (this.wolf) {
+            this.takeDamage(dmg * 2);
+        } else {
+            this.takeDamage(dmg);
+        }
+    }
+}

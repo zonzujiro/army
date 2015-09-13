@@ -4,30 +4,161 @@
     -ms-user-select: none;
 }
 
+h1 {
+    font-size: 1.5em;
+}
+
 #map {
-    width: 620px;
-    margin-left: auto;
+    width: 540px;
     margin-right: auto;
+    float: left;
+    margin-top: 65px;
+}
+
+#addUnitMenu {
+    width: 105px;
+    height: 385px;
+    border: 1px black solid;
+    padding-left: 10px;
+    position: absolute;;
+    top: 0;
+    left: 0;
+    background-color: white;    
+    visibility:hidden;
+    opacity:0;
+    transition:visibility 0s linear 0.1s, opacity 0.2s linear;
+}
+
+#addUnitMenu li {
+    display: inline;
+    padding-left: 5px;
+    cursor: pointer;
+}
+
+#addUnitMenu p:hover {
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    transition-duration: 0.5s;
 }
 
 .cell {
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
     border: 1px solid black;
-    margin: 7px;
+    margin: 5px;
     float: left;
     cursor: pointer;
-    font-size: 45px;
+    font-size: 30px;
     text-align: center;
     box-sizing: border-box;
+    line-height: 1.7;
 }
 
-.cell:hover {
+.cell.active {
     border: 1px solid orange;
 }
 
 #main {
-    width: 710px;
+    width: 1340px;
     margin-left: auto;
     margin-right: auto;
+}
+
+#screen {
+    width: 800px;
+}
+
+#list {
+    width: 160px;
+    padding-left: 0px;
+    float: left;
+    margin-left: 10px;
+    border-left: 1.5px solid black;
+    list-style-type: none;
+}
+
+#list li {
+    font: 20pt Open Sans;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding-left: 5px;
+}
+
+#list li:hover {
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    transition-duration: 0.5s;
+}
+
+#string {
+    font: 13pt Open Sans-serif;    
+    padding: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#string:hover {
+    background-color: lightgrey;
+    cursor: pointer;
+}
+
+#info {
+    width: 540px;
+    height: 500px;
+    overflow: auto;
+    float: left;
+    font: 18pt Open Sans;
+    padding-left: 60px;
+    transition-duration: 1s;
+}
+
+#info.inBattle {
+    margin-left: -220px;
+    width: 600px;
+    transition-duration: 1s;
+}
+
+#menu {
+    margin: 0;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.lourdess {
+    color: lightcoral;
+}
+
+#menu li {
+    display: inline;
+    font: 25pt Open Sans;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#menu li:hover {
+    color: white;
+    background-color: black;
+    transition-duration: 0.5s;
+}
+
+.inactive {
+    color: grey;
+}
+
+.clicked {
+    border-bottom: 2px solid black;
+}
+
+#start {
+    color: red;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+#start:hover {
+    color: white;
+    background-color: red;
+    transition-duration: 0.5s;
 }

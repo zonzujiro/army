@@ -2,16 +2,39 @@
 <html>
 
 <head>
-    <title>Chess</title>
+    <title>Army</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,600italic,400italic,300italic' rel='stylesheet' type='text/css'>
     <script src="jquery.min.js"></script>
+  	<script src="ability.js"></script>
+  	<script src="unit.js"></script>
+  	<script src="spellcaster.js"></script>
+    <script src="state.js"></script>
+  	<script src="map.js"></script>
+  	<script src="location.js"></script>
+  	<script src="spell.js"></script>
+  	<script src="spellbook.js"></script>
+  	<script src="attackMethod.js"></script>
+    <script src="ui.js"></script>
+    <script src="army.js"></script>
     <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
     <div id="main">
-        <div id=" map"></div>
+    <div id ="addUnitMenu"></div>
+    <div id="map"></div>        
+    <ul id="menu">
+        <li id="start">Start</li> 
+        <li id="log" class="item">Log</li>
+        <li id="units" class="item">Units</li>
+        <li id="abilities" class="item">Abilities</li>
+        <li id="spells" class="item">Spells</li>
+        <li id="game" class="item">About</li>
+    </ul>
+    <ul id="list"></ul>
+    <div id="info"></div>
     </div>
 </body>
 
