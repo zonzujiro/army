@@ -1,12 +1,17 @@
 "use strict"
 
-class Map {
+class Field {
     constructor(userInterface) {
+        this.width = 40;
+        this.height = 20;
+        this.cellSize = 30;
+        
         this.userInterface = userInterface;
         this.userInterface.map = this;
-        this.numberOfUnits = 0;
+        
         this.map = [];
         this.acted = [];
+        this.unitsInBattle = [];
         this.directions = {
             "n": new Location(0, -1),
             "ne": new Location(1, -1),
@@ -18,38 +23,32 @@ class Map {
             "nw": new Location(-1, -1)
         };
 
-        for (var y = 0; y < 8; y++) {
-            for (var x = 0; x < 8; x++) {
-                this.map.push(new Location(x, y));
+        for (var y = 0; y < this.height; y++) {
+            for (var x = 0; x < this.width; x++) {
+                this.map.push(new Cell(x, y));
             }
         }
-        this.draw();
+        this.drawGrid();
+        this.userInterface.drawCanvas(this.unitsInBattle);
     }
     
-    addUnit(unit, index) {
-        this.map[index].unit = null;
-        this.map[index].unit = unit;
+    addUnit(unit, clickedX, clickedY) {
+        this.writeCoordinatesInUnit(unit, clickedX, clickedY);
         unit.map = this;
-        this.numberOfUnits += 1;
-        this.draw();
+        this.drawGrid();
+        this.userInterface.drawCanvas(this.unitsInBattle);
     }
     
-    draw() {
-        var total = 8;
-        var index = this.map.length - total;
-        var width = 8,
-            height = 8;
-        var html = '';
-
-        for (let k = 0; k < width; k++) {
-            for (let z = 0; z < height; z++, index++, total++) {
-                // html += '<div id="x:' + this.map[index].x + ' y:' + this.map[index].y + ' index:' + index + '" class="cell">' + this.map[index].toString() + '</div>'; test of coordinate drawing
-                html += '<div id="' + index + '" class="cell">' + this.map[index].toString() + '</div>';
-            }
-            index = this.map.length - total;
-        }
-
-        $("#map").html(html);
+    writeCoordinatesInUnit(unit, clickedX, clickedY) {
+        let x = parseInt(clickedX / this.cellSize);
+        let y = parseInt(clickedY / this.cellSize);
+        let index = x + y * this.width;
+        
+        console.log("map.js  [x: " + x + " y: " + y + " index: " + index + "]");
+        
+        unit.location = new Location(x, y);
+        unit.location.imgX = this.map[index].imgX;
+        unit.location.imgY = this.map[index].imgY;
     }
     
     checkAreaAround(loc) {
@@ -74,23 +73,43 @@ class Map {
         return checked;
     }
     
-    moveToLocation(unit, loc) {
-        var index = loc.x + loc.y * 8;
+    drawGrid() {
+        var width = 20,
+            height = 10;
+        var html = '';
+        // var index = 0;
+        
+        for (let i = 0; i < this.map.length; i++) {
+            this.map[i].unit = null;
+        }
+        
+        for (var i = 0; i < this.unitsInBattle.length; i++) {
+            let index = this.unitsInBattle[i].location.x + this.unitsInBattle[i].location.y * this.width;
+            
+            console.log("map.js  [x: " + this.unitsInBattle[i].location.x + " y: " + this.unitsInBattle[i].location.y + " index: " + index + "]");
+            this.map[index].unit = this.unitsInBattle[i];
+        }        
+                    
+        // for (let k = 0; k < width; k++) {
+        //     for (let z = 0; z < height; z++, index++) {
+        //         // html += '<div id="x:' + this.map[index].x + ' y:' + this.map[index].y + ' index:' + index + '" class="cell">' + this.map[index].toString() + '</div>';
+        //         html += '<div id="' + index + '" class="cell">' + this.map[index].toString() + '</div>';
+        //     }
+        // }
 
-        this.removeUnit(unit);
-        this.addUnit(unit, index);
+        // $("#map").html(html);
     }
     
     searchAllEnemies(self) {
-        return this.map.filter(function (loc) {
-            return loc.unit != null && loc.unit != self;
+        return this.unitsInBattle.filter(function (enemy) {
+            return enemy != self;
         });
     }
     
     removeUnit(unit) {
         this.searchUnitLocation(unit).unit = null;
-        this.numberOfUnits -= 1;
-        this.draw();
+        this.unitsInBattle.splice(this.unitsInBattle.indexOf(unit), 1);
+        this.drawGrid();
     }
     
     searchUnitLocation(unit) {
@@ -120,7 +139,7 @@ class Map {
             currentY -= 1;
         }
 
-        index = currentX + currentY * 8;
+        index = currentX + currentY * this.width;
 
         return this.map[index];
     }
@@ -129,20 +148,21 @@ class Map {
         for (let i = 0; i < this.map.length; i++) {
             var unit = this.map[i].unit;
             
-            if (this.numberOfUnits > 1 && unit != null && this.acted.indexOf(unit) == -1) {
+            if (this.unitsInBattle.length > 1 && unit != null && this.acted.indexOf(unit) == -1) {
                 unit.act(this.map[i]);
                 this.acted.push(unit);
-                this.draw();
+                this.drawGrid();
             }
         }
 
         this.acted = [];
 
-        if (this.numberOfUnits > 1) {
+        if (this.unitsInBattle.length > 1) {
+            this.userInterface.drawCanvas(this.unitsInBattle);
             setTimeout(this.start.bind(this), 666);
         } else {
-            this.draw();
             this.userInterface.endGame();
+            this.userInterface.drawCanvas(this.unitsInBattle);
         }
     }
 }

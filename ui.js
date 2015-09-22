@@ -86,6 +86,32 @@ class UserInterface {
         this.history = string + this.history;
         $("#info").html(this.history);
     };
+    
+    drawCanvas(unit) {
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+        let image = new Image();
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        for (let x = 0; x < 1200; x += 30) {
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, 600);
+        }
+        
+        for (let y = 0; y < 600; y += 30) {
+            ctx.moveTo(0, y);
+            ctx.lineTo(1200, y);
+        }
+        
+        ctx.stroke();
+        
+        unit.forEach(function(unit) {
+            console.log("imgX: " + unit.location.imgX + " imgY: " + unit.location.imgY);
+            image.src = unit.iconPath;
+            ctx.drawImage(image, unit.location.imgX, unit.location.imgY);
+        });
+    };
 
     startGame() {
         $("#start").removeClass("clicked");
@@ -102,8 +128,6 @@ class UserInterface {
         var library = this.library;
         var list = this.list;
         var addUnitMenu = this.addUnitMenu;
-        
-        this.map.size = 0;
         
         $("#info").removeClass("inBattle");
         $(".item").removeClass("inactive");
