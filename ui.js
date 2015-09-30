@@ -1,23 +1,54 @@
 "use strict"
 
 class UserInterface {
-    constructor() {
+    constructor(sources) {
         this.counter = 1;
         this.addUnitMenu = "";
         this.history = "";
+        this.sources = sources;
+        this.landscape = new Landscape();
         this.map;
         
+        this.outline = {
+            history: {
+                "*": function () { return new Landscape(this.sources.landscape.mountain) }
+            },
+            
+            empty: ["                                       ", //1
+                    "                                       ", //2
+                    "                                       ", //3
+                    "                                       ", //4
+                    "                                       ", //5
+                    "                                       ", //6
+                    "                                       ", //7
+                    "                                       ", //8
+                    "                                       ", //9
+                    "                                       ", //10
+                    "                                       ", //11
+                    "                                       ", //12
+                    "                                       ", //13
+                    "                                       ", //14
+                    "                                       ", //15
+                    "                                       ", //16
+                    "                                       ", //17
+                    "                                       ", //18
+                    "                                       ", //19
+                    "                                       "], //20  
+                                      
+            mountain: [1]
+        }
+        
         this.units = {
-            archer: function () { return new Archer("Archer", 150, 35) },
-            soldier: function () { return new Soldier("Soldier", 200, 20) },
-            berserker: function () { return new Berserker("Berserker", 200, 20) },
-            rogue: function () { return new Rogue("Rogue", 175, 30) },
-            werewolf: function () { return new Werewolf("Werewolf", 150, 15) },
-            vampire: function () { return new Vampire("Vampire", 200, 25) },
-            wizard: function () { return new Wizard("Wizard", 150, 10, 200) },
-            warlock: function() { return new Warlock("Warlock", 170, 15, 150) }, 
-            priest: function () { return new Priest("Priest", 160, 15, 300) },
-            healer: function () { return new Healer("Healer", 130, 10, 300) },
+            archer:      function () { return new Archer("Archer", 150, 35, this.sources.units.archer) },
+            soldier:     function () { return new Soldier("Soldier", 200, 20) },
+            berserker:   function () { return new Berserker("Berserker", 200, 20) },
+            rogue:       function () { return new Rogue("Rogue", 175, 30) },
+            werewolf:    function () { return new Werewolf("Werewolf", 150, 15) },
+            vampire:     function () { return new Vampire("Vampire", 200, 25) },
+            wizard:      function () { return new Wizard("Wizard", 150, 10, 200) },
+            warlock:     function () { return new Warlock("Warlock", 170, 15, 150) }, 
+            priest:      function () { return new Priest("Priest", 160, 15, 300) },
+            healer:      function () { return new Healer("Healer", 130, 10, 300) },
             necromancer: function () { return new Necromancer("Necromancer", 200, 20, 200) }
         };
         
@@ -76,7 +107,10 @@ class UserInterface {
         for (let value in this.units) {
             this.list.units += '<li id="'+ value + '" class="units">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
             this.addUnitMenu += '<p id="'+ value + '" class="units">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</p>';
-        }   
+        }
+        
+        this.bindAll(this.units);
+        this.bindAll(this.outline.history);
     }
     
     print(text) {
@@ -87,31 +121,32 @@ class UserInterface {
         $("#info").html(this.history);
     };
     
-    drawCanvas(unit) {
+    drawCanvas(obj) {
         let canvas = document.getElementById('canvas');
         let ctx = canvas.getContext('2d');
-        let image = new Image();
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        for (let x = 0; x < 1200; x += 30) {
+        this.drawGridInCanvas(ctx);        
+        
+        obj.forEach(function(obj) {
+            console.log(obj);
+            ctx.drawImage(obj.icon, obj.location.imgX, obj.location.imgY);
+        });
+    };
+    
+    drawGridInCanvas(ctx) {
+        for (let x = 0; x < 1200; x += this.map.cellSize) {
             ctx.moveTo(x, 0);
             ctx.lineTo(x, 600);
         }
         
-        for (let y = 0; y < 600; y += 30) {
+        for (let y = 0; y < 600; y += this.map.cellSize) {
             ctx.moveTo(0, y);
             ctx.lineTo(1200, y);
-        }
-        
-        ctx.stroke();
-        
-        unit.forEach(function(unit) {
-            console.log("imgX: " + unit.location.imgX + " imgY: " + unit.location.imgY);
-            image.src = unit.iconPath;
-            ctx.drawImage(image, unit.location.imgX, unit.location.imgY);
-        });
-    };
+        }  
+        ctx.stroke();      
+    }
 
     startGame() {
         $("#start").removeClass("clicked");
@@ -178,4 +213,10 @@ class UserInterface {
         });   
     }
     
+    bindAll(obj) {
+        for (let prop in obj) {
+            obj[prop] = obj[prop].bind(this);
+        }
+    }
+        
 }

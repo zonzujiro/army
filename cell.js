@@ -1,13 +1,15 @@
 "use strict"
 
 class Cell {
-	constructor(x, y) {
+	constructor(x, y, size) {
 		this.x = x;
         this.y = y;
+        this.imgX = x * size;
+        this.imgY = y * size;
+        
         this.unit = null;
-        this.path = false;
-        this.imgX = x * 30;
-        this.imgY = y * 30;
+        this.landscape = null;
+        this.path = true;
 	}
 	
 	distance(loc) {

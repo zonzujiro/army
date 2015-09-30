@@ -1,10 +1,11 @@
 "use strict"
 
 $(function () {
-    var ui = new UserInterface();
-    var field = new Field(ui);
     var addedUnits = new Set();
     var clickedX, clickedY;
+    var sources = new Sources();
+    var ui = new UserInterface(sources);
+    var field = new Field(ui, ui.outline.mountain);
     
     $("#info").html(ui.library.about.game);
     $("#game").addClass("clicked");
@@ -27,14 +28,12 @@ $(function () {
     // });
 
     $("body").on("click", "canvas", function(clicked) {
-        let index = parseInt(clicked.offsetX / 30) + parseInt(clicked.offsetY / 30) * 40;
-        // console.log(index);
+        // let index = parseInt(clicked.offsetX / 30) + parseInt(clicked.offsetY / 30) * field.width;
         clickedX = clicked.offsetX;
         clickedY = clicked.offsetY;
-        console.log("army.js [x: " + clickedX + " y: " + clickedY + " index: " + index + "]");
-        ui.showCellMenu(clicked);
         
-        // $(this).addClass("active");
+        // console.log("army.js [x: " + clickedX + " y: " + clickedY + " index: " + index + "]");
+        ui.showCellMenu(clicked);
     });
     
     $("body").on("mouseenter", ".units", function () {
@@ -50,10 +49,9 @@ $(function () {
     }); 
     
     $("body").on("click", ".units", function () {
-        var unit = ui.units[this.id]();
+        let unit = ui.units[this.id]();
                 
-        field.unitsInBattle.push(unit);
-        field.addUnit(unit, clickedX, clickedY);
+        field.addUnit(unit, field.convertToIndex(parseInt(clickedX / field.cellSize), parseInt(clickedY / field.cellSize)));
         addedUnits.add(unit);
         
         $("#addUnitMenu").css({

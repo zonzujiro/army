@@ -1,8 +1,8 @@
 "use strict"
 
 class Unit {
-    constructor(name, hp, dmg) {
-        this.icon;
+    constructor(name, hp, dmg, icon) {
+        this.icon = icon;
         this.map;
         this.enemy;
         this.userInterface;
@@ -19,7 +19,7 @@ class Unit {
     ensureIsAlive() {
         if (this.hp == 0) {
             this.userInterface.print(this.state.name + " died because of war");            
-            this.map.removeUnit(this);
+            this.map.removeUnit(this, this.map.convertToIndex(this.location.x, this.location.y));
             this.notify();
             return false;
         }
@@ -52,6 +52,7 @@ class Unit {
     
     act() {
         this.userInterface.print("[" + this + "] turn");
+        // console.log("[" + this + "] turn");
 
         var enemies = this.map.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, this.location).location;
@@ -62,6 +63,7 @@ class Unit {
         }
 
         this.location = this.map.findPathToEnemy(this.location, target);
+        this.move(this.location);
     }
     
     move(loc) {
@@ -73,7 +75,7 @@ class Unit {
     }
     
     attack(enemy) {
-        this.userInterface.print(this.state.name + " attacking " + enemy.state.name + " [Damage: " + this.dmg + "]");
+        this.userInterface.print(this.name + " attacking " + enemy.name + " [Damage: " + this.dmg + "]");
         enemy.enemy = this;
         this.attackMethod.attack(enemy);
         enemy.counterattack(this);
@@ -127,12 +129,10 @@ class Unit {
 }
 
 class Archer extends Unit {
-    constructor(name, hp, dmg) {
-        super(name, hp, dmg);
+    constructor(name, hp, dmg, icon) {
+        super(name, hp, dmg, icon);
                 
         this.attackMethod = new RangeAttack(dmg);
-        // this.icon = new Image();
-        this.iconPath = './img/man.png';
     }
 }
 
