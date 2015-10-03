@@ -7,7 +7,7 @@ class Field {
         this.cellSize = 60;
         
         this.ui = ui;
-        this.ui.map = this;
+        this.ui.field = this;
         
         this.map = [];       
         this.units = [];
@@ -31,10 +31,11 @@ class Field {
         }
         
         for (var i = 0; i < blueprint.length; i++) {
-            let landscape = this.ui.outline.history["*"]();
+            let landscape = this.ui.map.history["*"]();
             let index = this.convertToIndex(this.map[blueprint[i]].x, this.map[blueprint[i]].y);
             
             landscape.location = this.map[index];
+            this.map[index].path = false;
             this.objectsOnMap.push(landscape);      
         }
         

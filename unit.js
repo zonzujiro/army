@@ -137,12 +137,11 @@ class Archer extends Unit {
 }
 
 class Soldier extends Unit {
-    constructor(name, hp, dmg) {
-        super(name, hp, dmg);
+    constructor(name, hp, dmg, icon) {
+        super(name, hp, dmg, icon);
         
         this.attackMethod = new DefaultAttack(dmg);
-        this.ability = new HideBehindShield(this);
-        this.icon = "S";
+        this.ability = new HideBehindShield(this);        
     }
     
     takeDamage(dmg) {
