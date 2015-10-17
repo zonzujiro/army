@@ -15,7 +15,7 @@ class Rage extends Ability {
 class HideBehindShield extends Ability {
     action(dmg) {
         if (Math.random() > 0.3) {
-            this.target.userInterface.print(this.target.state.name + " covers behind a shield and takes less damage [Damage: " + parseInt(dmg / 4, 10) + "]");
+            this.target.userInterface.print(this.target.name + " covers behind a shield and takes less damage [Damage: " + parseInt(dmg / 4, 10) + "]");
             this.target.state.removeHp(dmg / 5);
             return true;
         }
@@ -42,14 +42,14 @@ class Evading extends Ability {
 class Vampirism extends Ability {
     action() {
         let drainedHp = parseInt(this.target.dmg / 3);
-    
+
         this.target.userInterface.print(this.target.state.name + " drained " + drainedHp + "hp");
         this.target.addHitPoints(drainedHp);
     }
 }
 
 class Transformation extends Ability {
-    action() {        
+    action() {
         let tmp = this.target.state;
         let hpDifference = this.target.maxHp - this.target.hp;
 

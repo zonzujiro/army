@@ -6,7 +6,7 @@ class Spell {
         this.cost = cost;
         this.effect = effect;
         this.range = 3;
-    }    
+    }
 }
 
 class Heal extends Spell {

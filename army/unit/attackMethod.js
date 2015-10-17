@@ -11,7 +11,7 @@ class DefaultAttack extends AttackMethod {
     attack(enemy) {
         enemy.takeDamage(this.dmg);
     }
-    
+
     counterattack(enemy) {
         enemy.takeDamage(this.dmg / 2);
     }
@@ -37,7 +37,7 @@ class WerewolfAttack extends AttackMethod {
             enemy.act = Werewolf.prototype.act;
         }
     }
-    
+
     counterattack(enemy) {
         enemy.takeDamage(this.dmg / 2);
     }
@@ -48,11 +48,11 @@ class VampireAttack extends AttackMethod {
         super(self.state.dmg);
         this.self = self;
     }
-    
+
     attack(enemy) {
         enemy.takeDamage(this.dmg);
         this.self.ability.action();
-        
+
         if (!enemy.immunity) {
             enemy.state.name = "Vampire " + enemy.name;
             enemy.ability = new Vampirism(enemy);
@@ -62,7 +62,7 @@ class VampireAttack extends AttackMethod {
             enemy.takeDamage = Unit.prototype.takeDamage;
         }
     }
-    
+
     counterattack(enemy) {
         this.self.ability.action();
         enemy.takeDamage(this.dmg / 2);

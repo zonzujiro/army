@@ -7,7 +7,7 @@ class State {
         this.maxHp = hp;
         this.dmg = dmg;
     }
-    
+
     addHp(value) {
         let total = parseInt(this.hp + value, 10);
 
@@ -17,7 +17,7 @@ class State {
         }
         this.hp = total;
     }
-    
+
     removeHp(value) {
         value = parseInt(value, 10);
 
@@ -27,7 +27,7 @@ class State {
         }
         this.hp -= value;
     }
-    
+
     toString() {
         return this.name + " | HP: " + this.hp + "/" + this.maxHp + " Damage: " + this.dmg;
     }

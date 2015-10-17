@@ -1,25 +1,26 @@
 "use strict"
 
 class Unit {
-    constructor(name, hp, dmg, icon) {
-        this.icon = icon;
-        this.map;
-        this.enemy;
-        this.userInterface;
+    constructor(name, hp, dmg) {
+        this.field;
+        this.ui;
         this.location;
+        this.enemy;
+        
+        this.actionPoints = 4;
         this.state = new State(name, hp, dmg);
         this.wolfState = null;
         this.ability = null;
         this.immunity = false;
         this.wolf = false;
-        this.undead = false;
+        this.undead = false;        
         this.observers = new Set();
     }
     
     ensureIsAlive() {
         if (this.hp == 0) {
-            this.userInterface.print(this.state.name + " died because of war");            
-            this.map.removeUnit(this, this.map.convertToIndex(this.location.x, this.location.y));
+            this.ui.print(this.name + " died because of war");            
+            this.field.removeUnit(this, this.field.convertToIndex(this.location.x, this.location.y));
             this.notify();
             return false;
         }
@@ -51,23 +52,25 @@ class Unit {
     }
     
     act() {
-        this.userInterface.print("[" + this + "] turn");
+        this.ui.print("[" + this + "] turn");
         // console.log("[" + this + "] turn");
-
-        var enemies = this.map.searchAllEnemies(this);
+        
+        var enemies = this.field.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, this.location).location;
         
         if (this.location.distance(target) <= this.attackDistance) {
             this.attack(target.unit);
             return;
         }
-
-        this.location = this.map.findPathToEnemy(this.location, target);
-        this.move(this.location);
-    }
-    
-    move(loc) {
-        this.map.moveToLocation(this, loc);
+        
+        for (var i = 0; i < this.actionPoints; i++) {
+            this.location = this.field.findPathToEnemy(this.location, target);
+        }
+        
+        this.field.moveUnit(this, this.location);
+        
+        // this.location = this.field.findPathToEnemy(this.location, target);
+        // this.field.moveUnit(this, this.location).done(this.ui.drawFrame(this.field.objectsToDraw));
     }
     
     addHitPoints(hp) { 
@@ -75,7 +78,7 @@ class Unit {
     }
     
     attack(enemy) {
-        this.userInterface.print(this.name + " attacking " + enemy.name + " [Damage: " + this.dmg + "]");
+        this.ui.print(this.name + " attacking " + enemy.name + " [Damage: " + this.dmg + "]");
         enemy.enemy = this;
         this.attackMethod.attack(enemy);
         enemy.counterattack(this);
@@ -83,7 +86,7 @@ class Unit {
     
     counterattack(enemy) {
         if (this.hp > 0) {
-            this.userInterface.print(this.state.name + " counterattacking " + enemy.state.name + " [dmg: " + this.dmg / 2 + "]");
+            this.ui.print(this.state.name + " counterattacking " + enemy.state.name + " [dmg: " + this.dmg / 2 + "]");
             enemy.enemy = this;
             this.attackMethod.counterattack(enemy);
         }
@@ -112,7 +115,7 @@ class Unit {
         var self = this;        
 
         if (this.observers.size > 0) {
-            this.userInterface.print(this.state.name + " gives " + parseInt(this.state.maxHp / 3, 10) + "hp to his observers");
+            this.ui.print(this.state.name + " gives " + parseInt(this.state.maxHp / 3, 10) + "hp to his observers");
             this.observers.forEach(function (observer) {
                 observer.addHitPoints(self.maxHp / 3);
             });
@@ -129,16 +132,16 @@ class Unit {
 }
 
 class Archer extends Unit {
-    constructor(name, hp, dmg, icon) {
-        super(name, hp, dmg, icon);
+    constructor(name, hp, dmg) {
+        super(name, hp, dmg);
                 
         this.attackMethod = new RangeAttack(dmg);
     }
 }
 
 class Soldier extends Unit {
-    constructor(name, hp, dmg, icon) {
-        super(name, hp, dmg, icon);
+    constructor(name, hp, dmg) {
+        super(name, hp, dmg);
         
         this.attackMethod = new DefaultAttack(dmg);
         this.ability = new HideBehindShield(this);        
@@ -153,17 +156,17 @@ class Soldier extends Unit {
 }
 
 class Demon extends Unit {
-    constructor(name, hp, dmg, master, map) {
+    constructor(name, hp, dmg, master, field) {
         super(name, hp, dmg);        
         this.attackMethod = new DefaultAttack(dmg);
         this.master = master;
-        this.map = map;
+        this.field = field;
         this.immunity = true;
         this.master.slave = this;
     }
     
     getLocation() {
-        return this.map.searchUnitLocation(this.master);
+        return this.field.searchUnitLocation(this.master);
     }
     
     takeDamage(dmg) {
@@ -184,7 +187,7 @@ class Berserker extends Unit {
     }
     
     takeMagicDamage(dmg) {
-        this.userInterface.print("Berserker invulnerable to magic");
+        this.ui.print("Berserker invulnerable to magic");
     }
 }
 
@@ -193,7 +196,7 @@ class Rogue extends Unit {
         super(name, hp, dmg);
         
         this.attackMethod = new DefaultAttack(dmg);
-        this.ability = new Evading(this, this.map);
+        this.ability = new Evading(this, this.field);
         this.icon = "R";
     }
     
@@ -204,8 +207,8 @@ class Rogue extends Unit {
     
     takeDamage(dmg) {
        if (Math.random() > 0.5) {
-            if (this.ability.action(this.map, this.enemy)) {
-                this.userInterface.print(this.state.name + " evading attack with no harm");
+            if (this.ability.action(this.field, this.enemy)) {
+                this.ui.print(this.state.name + " evading attack with no harm");
                 return;
             };
         }
@@ -239,9 +242,9 @@ class Werewolf extends Unit {
     }
     
     act(unitLocation) {
-        this.userInterface.print("[" + this + "] turn");
+        this.ui.print("[" + this + "] turn");
 
-        var enemies = this.map.searchAllEnemies(this);
+        var enemies = this.field.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, this.location);
 
         if (Math.random() > 0.7) {
@@ -257,7 +260,7 @@ class Werewolf extends Unit {
             return;
         }
 
-        this.move(this.map.findPathToEnemy(this.location, target));
+        this.move(this.field.findPathToEnemy(this.location, target));
     }
     
     takeMagicDamage(dmg) {

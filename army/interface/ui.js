@@ -1,56 +1,19 @@
 "use strict"
 
 class UserInterface {
-    constructor(sources, army) {
+    constructor(factory, army) {
         this.counter = 1;
+        
         this.addUnitMenu = "";
         this.history = "";
-        this.sources = sources;
+        
+        this.factory = factory;
         this.army = army;
-        this.landscape = new Landscape();
         this.field;
         
-        this.map = {
-            history: {
-                "*": function () { return new Landscape(this.sources.landscape.mountain) }
-            },
-            
-            empty: ["                                       ", //1
-                    "                                       ", //2
-                    "                                       ", //3
-                    "                                       ", //4
-                    "                                       ", //5
-                    "                                       ", //6
-                    "                                       ", //7
-                    "                                       ", //8
-                    "                                       ", //9
-                    "                                       ", //10
-                    "                                       ", //11
-                    "                                       ", //12
-                    "                                       ", //13
-                    "                                       ", //14
-                    "                                       ", //15
-                    "                                       ", //16
-                    "                                       ", //17
-                    "                                       ", //18
-                    "                                       ", //19
-                    "                                       "], //20  
-                                      
-            mountain: [10, 30, 50, 70, 90, 110, 130]
-        }
-        
-        this.units = {
-            archer:      function () { return new Archer("Archer", 150, 35, this.sources.units.archer) },
-            soldier:     function () { return new Soldier("Soldier", 200, 20, this.sources.units.soldier) },
-            berserker:   function () { return new Berserker("Berserker", 200, 20) },
-            rogue:       function () { return new Rogue("Rogue", 175, 30) },
-            werewolf:    function () { return new Werewolf("Werewolf", 150, 15) },
-            vampire:     function () { return new Vampire("Vampire", 200, 25) },
-            wizard:      function () { return new Wizard("Wizard", 150, 10, 200) },
-            warlock:     function () { return new Warlock("Warlock", 170, 15, 150) }, 
-            priest:      function () { return new Priest("Priest", 160, 15, 300) },
-            healer:      function () { return new Healer("Healer", 130, 10, 300) },
-            necromancer: function () { return new Necromancer("Necromancer", 200, 20, 200) }
+        this.objectsOnCanvas = {
+            units: [],
+            landscape: []
         };
         
         this.library = {            
@@ -105,33 +68,81 @@ class UserInterface {
             this.list.spells += '<li id="'+ value + '" class="spells">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
         }
         
-        for (let value in this.units) {
+        for (let value in this.factory.units) {
             this.list.units += '<li id="'+ value + '" class="units">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</li>';
             this.addUnitMenu += '<p id="'+ value + '" class="units">' + value.slice(0,1).toUpperCase() + value.slice(1) + '</p>';
         }
-        
-        this.bindAll(this.units);
-        this.bindAll(this.map.history);
     }
     
-    bindAll(obj) {
-        for (let prop in obj) {
-            obj[prop] = obj[prop].bind(this);
-        }
+    addImageOfUnit(unit) {
+        this.objectsOnCanvas.units.push(unit);
     }
     
-    drawCanvas(obj) {
-        let canvas = document.getElementById('canvas');
-        let ctx = canvas.getContext('2d');
+    addImageOfLandscape(landscape) {
+        this.objectsOnCanvas.landscape.push(landscape);
+    }
         
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    draw() {
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
         
-        // this.drawGridInCanvas(ctx);
+        // ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        obj.forEach(function(obj) {
-            ctx.drawImage(obj.icon, obj.location.imgX, obj.location.imgY);
+        this.objectsOnCanvas.landscape.forEach(function (obj) {
+            ctx.drawImage(obj.img, obj.x, obj.y);
+        });
+        
+        this.objectsOnCanvas.units.forEach(function (obj) {
+            ctx.drawImage(obj.img, obj.x, obj.y);
         });
     };
+        
+    drawFrame(actedUnit, unitNumber) {
+        var current = this.objectsOnCanvas.units[unitNumber],
+            finish = actedUnit.location;
+            
+        var canvas = document.getElementById('canvas'),
+            ctx = canvas.getContext('2d');
+        
+        function isMovingFinished () {
+            console.log("unitsOnField:  x: " + finish.imgX + " y: " + finish.imgY);
+            console.log("unitsOnCanvas: x: " + current.x + " y: " + current.y);
+            
+            if (finish.imgX == current.x && finish.imgY == current.y) {
+                console.log("isMovingFinished: true");
+                return true;
+            }
+            console.log("isMovingFinished: false");
+            return false;
+        }
+
+        if (!isMovingFinished()) {
+            this.moveObjectOnCanvas(current, finish);
+            this.draw();
+            window.requestAnimationFrame(this.drawFrame.bind(this, actedUnit, unitNumber));
+            return $.Deferred().resolve(false);
+        } else {
+            console.log("Drawing done");
+            return $.Deferred().resolve();
+        }
+    }; 
+    
+    moveObjectOnCanvas(current, finish) {
+        console.log("moving");
+        var step = this.field.cellSize;
+        
+        if (current.x < finish.imgX) {
+            current.x += step;
+        } else if (current.x > finish.imgX) {
+            current.x -= step;
+        }
+        
+        if (current.y < finish.imgY) {
+            current.y += step;
+        } else if (current.y > finish.imgY) {
+            current.y -= step;
+        }
+    }
     
     drawGridInCanvas(ctx) {
         for (let x = 0; x < 1200; x += this.field.cellSize) {
@@ -172,6 +183,7 @@ class UserInterface {
         }); 
     }
         
+    
     startGame() {
         $("#start").removeClass("clicked");
         $("#list").html("");
@@ -183,7 +195,6 @@ class UserInterface {
         this.field.start();
     };
 
-    
     print(text) {
         var string = '<p id="string"># ' + this.counter + " | " + text + '</p>';
         

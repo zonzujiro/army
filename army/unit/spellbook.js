@@ -2,14 +2,14 @@
 
 class Spellbook {
     constructor() {
-        this.book = {};     
+        this.book = {};
     }
-    
+
     getSpell(name) {
         return this.book[name];
     }
-    
-    addSpell(spell) {        
+
+    addSpell(spell) {
         this.book[spell.name] = spell;
     }
 }

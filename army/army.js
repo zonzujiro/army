@@ -8,11 +8,11 @@ class Army {
         this.field;
         this.addedUnits = new Set();
         this.sources = new Sources(this);
-        this.ui = new UserInterface(this.sources, this);
+        this.factory = new Factory(this.sources);
+        this.ui = new UserInterface(this.factory, this);
     }
-        
+
     init() {
-        this.field = new Field(this.ui, this.ui.map.mountain);
+        this.field = new Field(this.ui, this.factory.map.mountain, this.factory);
     }
 };
-

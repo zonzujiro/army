@@ -7,37 +7,45 @@
     <meta name="viewport" content="width=device-width">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,600italic,400italic,300italic' rel='stylesheet' type='text/css'>
     <script src="jquery.min.js"></script>
-  	<script src="ability.js"></script>
-  	<script src="unit.js"></script>
-  	<script src="spellcaster.js"></script>
-    <script src="state.js"></script>
-  	<script src="field.js"></script>
-    <script src="cell.js"></script>
-  	<script src="spell.js"></script>
-  	<script src="spellbook.js"></script>
-  	<script src="attackMethod.js"></script>
-    <script src="landscape.js"></script>
-    <script src="sources.js"></script>    
-    <script src="ui.js"></script>
-    <script src="army.js"></script>
+    
+    <script src="army/unit/ability.js"></script>
+    <script src="army/unit/unit.js"></script>
+    <script src="army/unit/spellcaster.js"></script>
+    <script src="army/unit/state.js"></script>
+    <script src="army/unit/spell.js"></script>
+    <script src="army/unit/spellbook.js"></script>
+    <script src="army/unit/attackMethod.js"></script>
+    
+    <script src="army/field/field.js"></script>
+    <script src="army/field/cell.js"></script>
+    
+    <script src="army/landscape/landscape.js"></script>
+    
+    <script src="army/factory/sources.js"></script>
+    <script src="army/factory/factory.js"></script>
+    
+    <script src="army/interface/icon.js"></script>
+    <script src="army/interface/ui.js"></script>
+    
+    <script src="army/army.js"></script>
     <script src="main.js"></script>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="army/css/style.css" />
 </head>
 
 <body>
     <div id="main">
-      <div id ="addUnitMenu"></div>
-      <ul id="menu">
-          <li id="start">Start</li> 
-          <li id="log" class="item">Log</li>
-          <li id="units" class="item">Units</li>
-          <li id="abilities" class="item">Abilities</li>
-          <li id="spells" class="item">Spells</li>
-          <li id="game" class="item">About</li>
-      </ul>
-      <canvas id="canvas" width="1200" height="600"></canvas>
-      <ul id="list"></ul>
-      <div id="info"></div>
+        <div id="addUnitMenu"></div>
+        <ul id="menu">
+            <li id="start">Start</li>
+            <li id="log" class="item">Log</li>
+            <li id="units" class="item">Units</li>
+            <li id="abilities" class="item">Abilities</li>
+            <li id="spells" class="item">Spells</li>
+            <li id="game" class="item">About</li>
+        </ul>
+        <canvas id="canvas" width="1200" height="600"></canvas>
+        <ul id="list"></ul>
+        <div id="info"></div>
     </div>
 </body>
 

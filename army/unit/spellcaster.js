@@ -9,14 +9,14 @@ class Spellcaster extends Unit {
         this.spellbook = new Spellbook();
         this.attackMethod = new RangeAttack(dmg);
     }
-    
+
     get attackDistance() {
         if (!this.wolf && this.spell.cost <= this.mana) {
             return this.spell.range;
         }
         return this.attackMethod.distance;
     }
-    
+
     act(unitLocation) {
         if (this.mana < this.maxMana) {
             this.addMana(10);
@@ -36,7 +36,7 @@ class Spellcaster extends Unit {
 
         super.act(unitLocation);
     }
-    
+
     attack(enemy) {
         enemy.enemy = this;
 
@@ -48,7 +48,7 @@ class Spellcaster extends Unit {
         this.attackMethod.attack(enemy);
         enemy.counterattack(this);
     }
-    
+
     counterattack(enemy) {
         if (this.hp > 0) {
             enemy.enemy = this;
@@ -61,7 +61,7 @@ class Spellcaster extends Unit {
             this.attackMethod.counterattack(enemy);
         }
     }
-    
+
     addMana(value) {
         var mp = this.mana + value;
 
@@ -71,21 +71,21 @@ class Spellcaster extends Unit {
         }
         this.mana = mp;
     }
-    
+
     useSpell(target) {
-       this.userInterface.print(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
+        this.userInterface.print(this.state.name + " using " + this.spell.name + " [Dmg: " + this.spell.effect + "] on a " + target.state.name);
         this.mana -= this.spell.cost;
         this.spell.action(target);
     }
-    
+
     changeSpell(name) {
         this.spell = this.spellbook.getSpell(name);
     }
-    
+
     toString() {
         return this.state.toString() + " Mana: " + this.mana + "/" + this.maxMana;
     }
-    
+
 }
 
 class Battlemage extends Spellcaster {
@@ -119,7 +119,7 @@ class Necromancer extends Battlemage {
         this.spell = this.spellbook.getSpell("Fireball");
         this.icon = "N";
     }
-    
+
     useSpell(target) {
         target.addObserver(this);
         super.useSpell(target);
@@ -133,14 +133,14 @@ class Warlock extends Battlemage {
         this.icon = "Wk";
         this.slave = null;
     }
-    
+
     act(unitLocation) {
         if (this.slave == null && this.mana > 50) {
             this.summon();
         }
         super.act(unitLocation);
     }
-    
+
     attack(enemy) {
         var distanceToEnemy = this.location.distance(enemy.location);
         enemy.enemy = this;
@@ -150,10 +150,10 @@ class Warlock extends Battlemage {
             this.slave.attack(enemy);
             return;
         }
-        
+
         super.attack(enemy);
     }
-    
+
     // counterattack(enemy) {
     //     if (this.ensureIsAlive()) {
     //         var distance = this.getLocation().distance(enemy.getLocation());
@@ -172,29 +172,29 @@ class Warlock extends Battlemage {
     //         this.attackMethod.counterattack(enemy);
     //     }
     // }
-    
+
     freeSlave() {
         this.userInterface.print(this.name + " set his " + this.slave.name + " free");
         this.slave = null;
     }
-    
+
     summon() {
         this.slave = new Demon("Demon", 250, 50, this, this.map);
         this.mana -= 50;
         this.slave.userInterface = this.userInterface;
         this.userInterface.print(this.name + " summons his pet: " + this.slave);
     }
-    
+
     takeDamage(dmg) {
         if (this.slave != null && Math.random() > 0.5) {
             this.userInterface.print(this.slave.name + " covers his master [Damage: " + dmg + "]");
             this.slave.takeDamage(dmg);
             return;
         }
-        
+
         super.takeDamage(dmg);
     }
-    
+
     toString() {
         var out = this.name + " | HP: " + this.hp + "/" + this.maxHp + " MP: " + this.mana + "/" + this.maxMana + " Damage: " + this.dmg;
 
@@ -220,7 +220,7 @@ class Priest extends Supportmage {
         this.spell = this.spellbook.getSpell("Heal");
         this.icon = "P";
     }
-    
+
     useSpell(target) {
         if (this.spell.name == "Heal" && target.undead) {
             this.mana -= this.spell.cost;
@@ -228,7 +228,7 @@ class Priest extends Supportmage {
             target.takeMagicDamage(this.spell.effect * 2);
             return;
         }
-        
+
         super.useSpell(target);
     }
 }
