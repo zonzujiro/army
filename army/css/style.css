@@ -16,7 +16,8 @@ h1 {
 }
 
 #map {
-    width: 540px;
+    width: 1200px;
+    height: 600px;
     margin-right: auto;
     float: left;
     margin-top: 65px;
@@ -50,10 +51,10 @@ h1 {
 }
 
 .cell {
-    width: 55px;
-    height: 55px;
+    width: 60px;
+    height: 60px;
     border: 1px solid black;
-    margin: 5px;
+    /*margin: 5px;*/
     float: left;
     cursor: pointer;
     font-size: 30px;

@@ -9,7 +9,6 @@ class Cell {
 
         this.unit = null;
         this.landscape = null;
-        this.path = true;
     }
 
     distance(loc) {

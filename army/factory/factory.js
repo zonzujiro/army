@@ -48,12 +48,11 @@ class Factory {
                     "                                       ", //19
                     "                                       "], //20  
                                       
-            mountain: [10, 30, 50, 70, 90, 110, 130]
+            mountain: [10, 50, 70, 90, 110, 130]
         }
         
         this.bindAll(this.units);
-        this.bindAll(this.images.units);
-        this.bindAll(this.images.landscape);
+        this.bindAll(this.images);
 	}
 	
 	bindAll(obj) {

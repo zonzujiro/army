@@ -57,15 +57,20 @@ class Unit {
         
         var enemies = this.field.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, this.location).location;
+        var path;
         
         if (this.location.distance(target) <= this.attackDistance) {
             this.attack(target.unit);
             return;
         }
         
-        for (var i = 0; i < this.actionPoints; i++) {
-            this.location = this.field.findPathToEnemy(this.location, target);
-        }
+        console.log(this.field.objectsOnField.units.length);
+                
+        path = this.field.findPathToEnemy(this.location, target);
+        path.length -= this.actionPoints;
+        this.location = path[path.length - 1];
+        
+        console.log(this.field.objectsOnField.units.length);
         
         this.field.moveUnit(this, this.location);
         

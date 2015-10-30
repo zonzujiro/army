@@ -86,7 +86,9 @@ class UserInterface {
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
         
-        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.drawGridInCanvas(ctx);
         
         this.objectsOnCanvas.landscape.forEach(function (obj) {
             ctx.drawImage(obj.img, obj.x, obj.y);
@@ -97,7 +99,7 @@ class UserInterface {
         });
     };
         
-    drawFrame(actedUnit, unitNumber) {
+    changeCanvas(actedUnit, unitNumber) {
         var current = this.objectsOnCanvas.units[unitNumber],
             finish = actedUnit.location;
             
@@ -119,7 +121,7 @@ class UserInterface {
         if (!isMovingFinished()) {
             this.moveObjectOnCanvas(current, finish);
             this.draw();
-            window.requestAnimationFrame(this.drawFrame.bind(this, actedUnit, unitNumber));
+            window.requestAnimationFrame(this.changeCanvas.bind(this, actedUnit, unitNumber));
             return $.Deferred().resolve(false);
         } else {
             console.log("Drawing done");
@@ -128,8 +130,8 @@ class UserInterface {
     }; 
     
     moveObjectOnCanvas(current, finish) {
-        console.log("moving");
-        var step = this.field.cellSize;
+        console.log("[moveObjectOnCanvas] > moving");
+        var step = 1;
         
         if (current.x < finish.imgX) {
             current.x += step;
