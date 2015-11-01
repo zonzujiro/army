@@ -3,7 +3,7 @@
 class UserInterface {
     constructor(factory, army) {
         this.counter = 1;
-        
+                
         this.addUnitMenu = "";
         this.history = "";
         
@@ -86,7 +86,6 @@ class UserInterface {
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
         
-        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.drawGridInCanvas(ctx);
         
@@ -107,14 +106,14 @@ class UserInterface {
             ctx = canvas.getContext('2d');
         
         function isMovingFinished () {
-            console.log("unitsOnField:  x: " + finish.imgX + " y: " + finish.imgY);
-            console.log("unitsOnCanvas: x: " + current.x + " y: " + current.y);
+            // console.log("unitsOnField:  x: " + finish.imgX + " y: " + finish.imgY);
+            // console.log("unitsOnCanvas: x: " + current.x + " y: " + current.y);
             
             if (finish.imgX == current.x && finish.imgY == current.y) {
-                console.log("isMovingFinished: true");
+                // console.log("isMovingFinished: true");
                 return true;
             }
-            console.log("isMovingFinished: false");
+            // console.log("isMovingFinished: false");
             return false;
         }
 
@@ -130,8 +129,8 @@ class UserInterface {
     }; 
     
     moveObjectOnCanvas(current, finish) {
-        console.log("[moveObjectOnCanvas] > moving");
-        var step = 1;
+        // console.log("[moveObjectOnCanvas] > moving");
+        var step = 2;
         
         if (current.x < finish.imgX) {
             current.x += step;

@@ -18,8 +18,9 @@ class Factory {
         
         this.images = {
         	archer:   function () { return new Icon(sources.units.archer) },
-        	soldier:  function () { return new Icon(sources.units.soldier) },    	
-    		mountain: function () { return new Icon(sources.landscape.mountain) }
+        	soldier:  function () { return new Icon(sources.units.soldier) },
+                	
+    		"*": function () { return new Icon(sources.landscape.mountain) } // mountain
         }
         
         this.map = {
@@ -27,28 +28,16 @@ class Factory {
                 "*": function () { return new Landscape() }
             },
             
-            empty: ["                                       ", //1
-                    "                                       ", //2
-                    "                                       ", //3
-                    "                                       ", //4
-                    "                                       ", //5
-                    "                                       ", //6
-                    "                                       ", //7
-                    "                                       ", //8
-                    "                                       ", //9
-                    "                                       ", //10
-                    "                                       ", //11
-                    "                                       ", //12
-                    "                                       ", //13
-                    "                                       ", //14
-                    "                                       ", //15
-                    "                                       ", //16
-                    "                                       ", //17
-                    "                                       ", //18
-                    "                                       ", //19
-                    "                                       "], //20  
-                                      
-            mountain: [10, 50, 70, 90, 110, 130]
+            mountain: ["                *   ", //1
+                       "                *   ", //2
+                       "                *   ", //3
+                       "    *******     *   ", //4
+                       "          *******   ", //5
+                       "                    ", //6
+                       "    ******          ", //7
+                       "                    ", //8
+                       "                    ", //9
+                       "                    "], //10   
         }
         
         this.bindAll(this.units);

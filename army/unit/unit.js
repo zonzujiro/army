@@ -57,25 +57,19 @@ class Unit {
         
         var enemies = this.field.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, this.location).location;
-        var path;
+        var allPath, path, finish;
         
         if (this.location.distance(target) <= this.attackDistance) {
             this.attack(target.unit);
             return;
         }
         
-        console.log(this.field.objectsOnField.units.length);
-                
-        path = this.field.findPathToEnemy(this.location, target);
-        path.length -= this.actionPoints;
-        this.location = path[path.length - 1];
+        allPath = this.field.findPathToEnemy(this.location);
+        path = allPath.slice(allPath.length - this.actionPoints, allPath.length);
+        finish = path[0];
+        this.location = this.field.map[finish];
         
-        console.log(this.field.objectsOnField.units.length);
-        
-        this.field.moveUnit(this, this.location);
-        
-        // this.location = this.field.findPathToEnemy(this.location, target);
-        // this.field.moveUnit(this, this.location).done(this.ui.drawFrame(this.field.objectsToDraw));
+        this.field.moveUnit(this, finish);
     }
     
     addHitPoints(hp) { 

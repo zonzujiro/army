@@ -33,20 +33,32 @@ class Field {
         this.addLandscape(blueprint);
         this.ui.draw();
     }
-    
+
     addLandscape(blueprint) {
-        for (var i = 0; i < blueprint.length; i++) {
-            var index = this.convertToIndex(this.map[blueprint[i]].x, this.map[blueprint[i]].y);
-            var landscape = this.factory.map.history["*"]();
-            var image = this.factory.images.mountain();
+        var row, index;
+        var landscape, image;
+        
+        for (var y = 0; y < blueprint.length; y++) {
+            row = blueprint[y];
             
-            image.setCoordinates(this.map[index].x, this.map[index].y);
-            landscape.location = this.map[index];
-            this.map[index].landscape = landscape;
-            this.objectsOnField.landscape.push(landscape);
-            this.ui.addImageOfLandscape(image);
+            for (var x = 0; x < row.length; x++) {
+                index = this.convertToIndex(x, y);
+                
+                if (row[x] == " ") {
+                    continue;
+                }
+                
+                landscape = this.factory.map.history[row[x]]();
+                image = this.factory.images[row[x]]();
+                
+                image.setCoordinates(this.map[index].x, this.map[index].y);
+                landscape.location = this.map[index];
+                this.map[index].landscape = landscape;
+                this.objectsOnField.landscape.push(landscape);
+                this.ui.addImageOfLandscape(image);                
+            }
         }
-    }    
+    }
 
     addUnit(unit, index) {
         unit.location = this.map[index];
@@ -105,56 +117,31 @@ class Field {
         this.objectsOnField.units.splice(this.objectsOnField.units.indexOf(unit), 1);
     }
 
-    findPathToEnemy(currentLocation, targetLocation) {
+    findPathToEnemy(currentLocation) {
         var index = this.convertToIndex(currentLocation.x, currentLocation.y);
-        
-        return this.finder.calculateRoute(index, currentLocation);
-        // console.log(checked);
-        
-        // var currentX = currentLocation.x,
-        //     currentY = currentLocation.y;
-        // var targetX = targetLocation.x,
-        //     targetY = targetLocation.y;
-        // var index;
-        
-        // if (currentX < targetX) {
-        //     currentX += 1;
-        // } else if (currentX > targetX) {
-        //     currentX -= 1;
-        // }
 
-        // if (currentY < targetY) {
-        //     currentY += 1;
-        // } else if (currentY > targetY) {
-        //     currentY -= 1;
-        // }
-        
-        // index = this.convertToIndex(currentX, currentY);
-
-        // return this.map[index];
+        return this.finder.calculateRoute(this.convertToIndex(currentLocation.x, currentLocation.y), currentLocation);
     }
 
     moveUnit(unit, index) {
         this.map[index].unit = null;
         unit.location = this.map[index];
-        
-        return $.Deferred().resolve();
     }
 
     start() {
         var limit = this.objectsOnField.units.length - 1;
         var self = this;
-        var index = -1;
+        var counter = -1;
         var unit;
         
         function turn() {
-            if (index < limit) {
-                index += 1;
+            if (counter < limit) {
+                counter += 1;
             } else {
-                index = 0;
+                counter = 0;
             }
             
-            unit = self.objectsOnField.units[index];
+            unit = self.objectsOnField.units[counter];
             
             if (self.objectsOnField.units.length > 1) {
                 unit.act();
@@ -163,7 +150,7 @@ class Field {
             
             if (self.objectsOnField.units.length > 1) {
                 console.log("----- Turn ended");
-                self.ui.changeCanvas(unit, index).done(turn());
+                self.ui.changeCanvas(unit, counter).done(turn());
             } else {
                 self.ui.endGame();
                 self.ui.draw();

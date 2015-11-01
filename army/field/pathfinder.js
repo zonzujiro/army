@@ -2,8 +2,6 @@
 
 class Pathfinder {
     constructor(field) {
-        this.stepCounter = 0;
-        this.checkedCells = 1;
         this.field = field;
         this.directions = {
             "n": new Cell(0, -1),
@@ -16,21 +14,35 @@ class Pathfinder {
             "nw": new Cell(-1, -1)
         };
 
-        this.mapOfPaths = [];
-        this.shortestRoute = [];
-        this.lastCheckedCells = [];
-                
+        this.stepCounter;
+        this.checkedCells;
+        this.lastCheckedCells;
+        this.mapOfPaths;
+        this.shortestRoute;
+    }
+    
+    nullMapOfPaths() {
         for (var i = 0; i < this.field.map.length; i++) {
             this.mapOfPaths.push(null);
         }
     }
     
     calculateRoute(start) {
+        this.shortestRoute = [];
+        this.lastCheckedCells = [];
+        this.mapOfPaths = [];
+        this.stepCounter = 0;
+        this.checkedCells = 1;
+        
+        this.nullMapOfPaths();
         this.mapOfPaths[start] = this.stepCounter;
         this.lastCheckedCells.push(start);
+        
         this.startWave();
         this.findRouteToClosestEnemy(start);
-        this.drawMapOfPaths();
+        // this.drawMapOfPaths();
+        
+        console.log(this.shortestRoute);
         
         return this.shortestRoute;
     };
@@ -45,13 +57,10 @@ class Pathfinder {
     
     findRouteToClosestEnemy(selfPosition) {
         var counter = 0;
-        // var enemies = Object.assign({}, this.field.objectsOnField.units).map(function (value, elem) { return elem; });
-        var enemies = this.field.objectsOnField.units;
+        var self = this.field.map[selfPosition].unit;
+        var enemies = this.field.objectsOnField.units.filter(function (e) { return e != self; } );
         var locationsOfEnemies = [];
         var waypoints = [];
-        
-        // console.log(enemies);
-        enemies.splice(enemies.indexOf(this.field.map[selfPosition].unit), 1);
         
         for (var i = 0; i < enemies.length; i++) {
             locationsOfEnemies.push(this.field.convertToIndex(enemies[i].location.x, enemies[i].location.y));
@@ -87,6 +96,7 @@ class Pathfinder {
                 index = this.field.convertToIndex(x, y);
                 
                 if (this.mapOfPaths[index] != NaN && this.mapOfPaths[index] < this.mapOfPaths[waypoints[last]]) {
+                    console.log("true");
                     waypoints.push(index);
                     break;
                 }
