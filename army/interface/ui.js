@@ -97,8 +97,16 @@ class UserInterface {
             ctx.drawImage(obj.img, obj.x, obj.y);
         });
     };
+    
+    animate(actedUnit, unitNumber) {
+        var def = $.Deferred();
         
-    changeCanvas(actedUnit, unitNumber) {
+        this.changeCanvas(def, actedUnit, unitNumber);
+        
+        return def;
+    }
+        
+    changeCanvas(def, actedUnit, unitNumber) {
         var current = this.objectsOnCanvas.units[unitNumber],
             finish = actedUnit.location;
             
@@ -120,11 +128,11 @@ class UserInterface {
         if (!isMovingFinished()) {
             this.moveObjectOnCanvas(current, finish);
             this.draw();
-            window.requestAnimationFrame(this.changeCanvas.bind(this, actedUnit, unitNumber));
-            return $.Deferred().resolve(false);
+            console.log("drawing moving");
+            window.requestAnimationFrame(this.changeCanvas.bind(this, def, actedUnit, unitNumber));
         } else {
             console.log("Drawing done");
-            return $.Deferred().resolve();
+            def.resolve();
         }
     }; 
     

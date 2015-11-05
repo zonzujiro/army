@@ -149,8 +149,9 @@ class Field {
             }
             
             if (self.objectsOnField.units.length > 1) {
-                console.log("----- Turn ended");
-                self.ui.changeCanvas(unit, counter).done(turn());
+                console.log("----- " + unit.name + " turn ended");
+                self.ui.animate(unit, counter).done(turn());
+                console.log("----- New turn");
             } else {
                 self.ui.endGame();
                 self.ui.draw();
