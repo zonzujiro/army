@@ -97,6 +97,10 @@ class Field {
     convertToIndex(x, y) {
         return x + y * this.width;
     }
+    
+    getUnitIndex(unit) {
+        return this.objectsOnField.units.indexOf(unit);
+    }
 
     refreshMap() {
         for (let i = 0; i < this.objectsOnField.units.length; i++) {
@@ -123,7 +127,7 @@ class Field {
         return this.finder.calculateRoute(this.convertToIndex(currentLocation.x, currentLocation.y), currentLocation);
     }
 
-    moveUnit(unit, index) {
+    moveUnitOnField(unit, index, path) {
         this.map[index].unit = null;
         unit.location = this.map[index];
     }
@@ -149,9 +153,7 @@ class Field {
             }
             
             if (self.objectsOnField.units.length > 1) {
-                console.log("----- " + unit.name + " turn ended");
-                self.ui.animate(unit, counter).done(turn());
-                console.log("----- New turn");
+                self.ui.animate(unit.nextSteps, counter).done(turn);
             } else {
                 self.ui.endGame();
                 self.ui.draw();

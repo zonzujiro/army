@@ -42,9 +42,9 @@ class Pathfinder {
         this.findRouteToClosestEnemy(start);
         // this.drawMapOfPaths();
         
-        console.log(this.shortestRoute);
+        // console.log(this.shortestRoute);
         
-        return this.shortestRoute;
+        return this.shortestRoute.reverse();
     };
     
     isInsideX(num) {
@@ -96,7 +96,6 @@ class Pathfinder {
                 index = this.field.convertToIndex(x, y);
                 
                 if (this.mapOfPaths[index] != NaN && this.mapOfPaths[index] < this.mapOfPaths[waypoints[last]]) {
-                    console.log("true");
                     waypoints.push(index);
                     break;
                 }

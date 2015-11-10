@@ -81,7 +81,63 @@ class UserInterface {
     addImageOfLandscape(landscape) {
         this.objectsOnCanvas.landscape.push(landscape);
     }
+    
+    animate(waypoints, unitNumber) {
+        var frameAnimation = $.Deferred();
+        var currentLocation = this.objectsOnCanvas.units[unitNumber];
         
+        if (waypoints && !this.isMovingFinished(currentLocation, this.field.map[waypoints[waypoints.length - 1]])) {
+            this.changeCanvas(frameAnimation, waypoints, unitNumber);       
+        } else {
+            frameAnimation.resolve();
+        }
+        return frameAnimation;
+    }
+        
+    changeCanvas(frameAnimation, waypoints, unitNumber) {
+        var canvas = document.getElementById('canvas'),
+            ctx = canvas.getContext('2d');
+            
+        var self = this;
+        
+        var counter = 0;
+        
+        function iterateWaypoints() {
+            counter += 1;
+            
+            if (counter == waypoints.length) {
+                frameAnimation.resolve();
+                return
+            }
+            
+            var start = self.objectsOnCanvas.units[unitNumber],
+                finish = self.field.map[waypoints[counter]];
+                
+            drawFrame(start, finish).done(iterateWaypoints);
+        }
+        
+        function drawFrame(start, finish) {
+            var isDrawn = $.Deferred();
+            
+            doFrame(isDrawn, start, finish);
+            return isDrawn;
+        }
+        
+        function doFrame(trigger, start, finish) {
+            if (!self.isMovingFinished(start, finish)) {
+                self.moveObjectOnCanvas(start, finish);
+                self.draw();
+                // console.log("drawing moving");
+                window.requestAnimationFrame(doFrame.bind(this, trigger, start, finish));
+            } else {
+                // console.log("Drawing done");
+                trigger.resolve();
+            }            
+        }
+        
+        iterateWaypoints();
+    };
+    
     draw() {
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
@@ -98,46 +154,15 @@ class UserInterface {
         });
     };
     
-    animate(actedUnit, unitNumber) {
-        var def = $.Deferred();
-        
-        this.changeCanvas(def, actedUnit, unitNumber);
-        
-        return def;
+    
+    isMovingFinished(start, finish) {
+        if (finish.imgX == start.x && finish.imgY == start.y) {
+            return true;
+        }
+        return false;
     }
-        
-    changeCanvas(def, actedUnit, unitNumber) {
-        var current = this.objectsOnCanvas.units[unitNumber],
-            finish = actedUnit.location;
-            
-        var canvas = document.getElementById('canvas'),
-            ctx = canvas.getContext('2d');
-        
-        function isMovingFinished () {
-            // console.log("unitsOnField:  x: " + finish.imgX + " y: " + finish.imgY);
-            // console.log("unitsOnCanvas: x: " + current.x + " y: " + current.y);
-            
-            if (finish.imgX == current.x && finish.imgY == current.y) {
-                // console.log("isMovingFinished: true");
-                return true;
-            }
-            // console.log("isMovingFinished: false");
-            return false;
-        }
-
-        if (!isMovingFinished()) {
-            this.moveObjectOnCanvas(current, finish);
-            this.draw();
-            console.log("drawing moving");
-            window.requestAnimationFrame(this.changeCanvas.bind(this, def, actedUnit, unitNumber));
-        } else {
-            console.log("Drawing done");
-            def.resolve();
-        }
-    }; 
     
     moveObjectOnCanvas(current, finish) {
-        // console.log("[moveObjectOnCanvas] > moving");
         var step = 2;
         
         if (current.x < finish.imgX) {
@@ -164,6 +189,11 @@ class UserInterface {
             ctx.lineTo(1200, y);
         }  
         ctx.stroke();      
+    }
+    
+    removeUnit(index) {
+        this.objectsOnCanvas.units.splice(index, 1);
+        this.draw();
     }
 
     endGame() {
@@ -192,7 +222,6 @@ class UserInterface {
         }); 
     }
         
-    
     startGame() {
         $("#start").removeClass("clicked");
         $("#list").html("");

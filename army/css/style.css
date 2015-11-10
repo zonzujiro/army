@@ -121,7 +121,7 @@ h1 {
 }
 
 #info.inBattle {
-    margin-left: -220px;
+    /*margin-left: -220px;*/
     width: 600px;
     transition-duration: 1s;
 }

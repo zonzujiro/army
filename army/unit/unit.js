@@ -6,6 +6,7 @@ class Unit {
         this.ui;
         this.location;
         this.enemy;
+        this.nextSteps;
         
         this.actionPoints = 4;
         this.state = new State(name, hp, dmg);
@@ -19,7 +20,8 @@ class Unit {
     
     ensureIsAlive() {
         if (this.hp == 0) {
-            this.ui.print(this.name + " died because of war");            
+            this.ui.print(this.name + " died because of war");
+            this.ui.removeUnit(this.field.getUnitIndex(this));
             this.field.removeUnit(this, this.field.convertToIndex(this.location.x, this.location.y));
             this.notify();
             return false;
@@ -57,19 +59,16 @@ class Unit {
         
         var enemies = this.field.searchAllEnemies(this);
         var target = this.chooseNearestEnemy(enemies, this.location).location;
-        var allPath, path, finish;
+        var pathToEnemy;
         
         if (this.location.distance(target) <= this.attackDistance) {
             this.attack(target.unit);
             return;
         }
         
-        allPath = this.field.findPathToEnemy(this.location);
-        path = allPath.slice(allPath.length - this.actionPoints, allPath.length);
-        finish = path[0];
-        this.location = this.field.map[finish];
-        
-        this.field.moveUnit(this, finish);
+        pathToEnemy = this.field.findPathToEnemy(this.location);
+        this.nextSteps = pathToEnemy.slice(0, this.actionPoints);
+        this.field.moveUnitOnField(this, this.nextSteps[this.nextSteps.length - 1]);
     }
     
     addHitPoints(hp) { 
