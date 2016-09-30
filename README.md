@@ -18,3 +18,5 @@ Mages:
 - Priest - support mage. Healing makes double damage to undead unit.
 - Warlock - battle mage. Can summon Demon.
 - Necromancer - battle mage. Heal himself when his target dying.
+
+## In dev branch available unfinished version written on canvas, with landscape, path finder, etc.
