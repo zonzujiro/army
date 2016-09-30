@@ -1,7 +1,6 @@
-# armyJS
+# Army
 
-Choose units and place them on field. 
-After that, units will automatically move and attack each other.
+### Choose units and place them on field. After that, units will automatically move and attack each other.
 
 Units:
 - Soldier - simple close combat unit. Can use shield.
@@ -19,4 +18,4 @@ Mages:
 - Warlock - battle mage. Can summon Demon.
 - Necromancer - battle mage. Heal himself when his target dying.
 
-## In dev branch available unfinished version written on canvas, with landscape, path finder, etc.
+> In dev branch available unfinished version written on canvas, with landscape, path finder, etc.
