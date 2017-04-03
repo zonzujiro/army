@@ -19,3 +19,5 @@ Mages:
 - Necromancer - battle mage. Heal himself when his target dying.
 
 > In dev branch available unfinished version written on canvas, with landscape, path finder, etc.
+
+Gitpages - http://zonzujiro.github.io/army/
